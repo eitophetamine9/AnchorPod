@@ -1,4 +1,4 @@
-# AnchorPod ⚓
+# AnchorPod
 
 > **A community-driven, anonymous accountability platform designed to combat academic burnout and student isolation through shared daily self-care rhythms.**
 
@@ -9,7 +9,7 @@
 
 ---
 
-## 📖 Overview
+## Overview
 
 Depression and academic burnout heavily isolate students during demanding semesters, making even basic daily self-care tasks feel completely overwhelming. Standard habit trackers rely purely on solitary intrinsic motivation, which is often the first thing to disappear under intense stress.
 
@@ -17,7 +17,7 @@ Depression and academic burnout heavily isolate students during demanding semest
 
 ---
 
-## 🏛️ Architecture — Vertical Slicing
+## Architecture — Vertical Slicing
 
 This application is built in strict adherence to the **CSIT327 Vertical Slicing Architecture (Package-by-Feature)**. Instead of organizing code horizontally by technical layers (controllers, models, views), every business capability is encapsulated as an independent Django feature app:
 
@@ -26,7 +26,6 @@ AnchorPod/
 ├── manage.py
 ├── models.py                     # Consolidated master model definitions (Submission Reference)
 ├── requirements.txt              # Production & dev dependencies
-├── .env.example                  # Template for Supabase Session Pooler connection
 ├── anchorpod/                    # Project-level configuration & routing
 │   ├── settings.py               # Configured for vertical apps, dotenv, and Supabase DATABASE_URL
 │   ├── urls.py                   # Feature routing & development media serving
@@ -57,7 +56,7 @@ AnchorPod/
 
 ---
 
-## 🚀 Live & Implemented Features
+## Live & Implemented Features
 
 ### 1. Account Authentication (`apps/login`, `apps/register`)
 * Student registration enforced with institutional email validation to maintain a closed campus community.
@@ -87,7 +86,7 @@ AnchorPod/
 
 ---
 
-## 🛠️ Features in Active Development (Roadmap)
+## Features in Active Development (Roadmap)
 
 The complete database schema for these features is already created and migrated in Supabase. The business logic and user interfaces are currently in active development:
 
@@ -104,7 +103,7 @@ The complete database schema for these features is already created and migrated 
 
 ---
 
-## 🗄️ Database Schema (Physical ERD Summary)
+## Database Schema (Physical ERD Summary)
 
 The application uses 14 normalized tables hosted on Supabase PostgreSQL:
 
@@ -125,7 +124,7 @@ A complete master models reference is available in [`models.py`](models.py).
 
 ---
 
-## 💻 Local Development Setup
+## Local Development Setup
 
 ### Prerequisites
 * Python 3.12+ (tested on Python 3.14)
@@ -155,11 +154,7 @@ pip install -r requirements.txt
 ```
 
 ### 4. Configure Environment Variables
-Copy the example environment template:
-```bash
-cp .env.example .env
-```
-Open `.env` and fill in your Supabase connection URL:
+Create a `.env` file in the project root:
 ```ini
 DATABASE_URL=postgresql://postgres.[PROJECT-REF]:[YOUR_PASSWORD]@[POOLER-HOST]:5432/postgres
 SECRET_KEY=your-django-secret-key
@@ -184,7 +179,7 @@ Visit `http://127.0.0.1:8000` in your browser.
 
 ---
 
-## 🧪 Testing
+## Testing
 
 AnchorPod includes automated test cases across all vertical slices:
 ```bash
@@ -198,9 +193,10 @@ python manage.py test apps.home --keepdb
 
 ---
 
-## 👥 Course & Academic Metadata
+## Course & Academic Metadata
 
 * **Course**: CSIT327 — Advanced Database Systems / Web Systems
 * **Instructor**: Joemarie Comeros Amparo
 * **Topic**: Django Vertical Slicing Architecture & Supabase Cloud PostgreSQL Integration
 * **Student Author**: [eitophetamine9](https://github.com/eitophetamine9)
+

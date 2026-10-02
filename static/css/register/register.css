@@ -1,0 +1,22 @@
+/* Register Feature CSS */
+.register-helper-box {
+  margin-top: 18px;
+  padding: 14px;
+  background: #fbfcf8;
+  border: 1px dashed #cfd6ce;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.register-helper-box strong {
+  color: var(--ink);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.password-match-indicator {
+  font-size: 11px;
+  margin-top: 4px;
+  display: none;
+}

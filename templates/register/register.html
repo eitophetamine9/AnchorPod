@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Join AnchorPod{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/register/register.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="auth-layout register-layout">
+  <div class="auth-intro">
+    <p class="eyebrow">Make room for support</p>
+    <h1>Do today<br><em>together.</em></h1>
+    <p class="intro-copy">AnchorPod matches you with four students who understand that progress can be as simple as drinking water.</p>
+    <div class="mini-pod">
+      <span>NS</span>
+      <span>JU</span>
+      <span>MO</span>
+      <span>SO</span>
+      <strong>+ you</strong>
+    </div>
+  </div>
+
+  <div class="auth-panel">
+    <div class="panel-heading">
+      <p class="eyebrow">Create your account</p>
+      <h2>Start gently.</h2>
+    </div>
+
+    {% if error %}
+      <div class="form-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" class="form-stack">
+      {% csrf_token %}
+      <label for="id_username">University email or username</label>
+      <input id="id_username" name="username" type="text" autocomplete="username" placeholder="you@university.edu" value="{{ username|default:'' }}" required>
+
+      <label for="id_password">Password</label>
+      <input id="id_password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required>
+
+      <label for="id_password2">Confirm password</label>
+      <input id="id_password2" name="password2" type="password" autocomplete="new-password" placeholder="Re-enter password" required>
+
+      <p class="form-note">Use your university email to keep AnchorPod a closed, student-only space.</p>
+      <button class="primary-button" type="submit">Find my pod <span>&rarr;</span></button>
+    </form>
+
+    <div class="register-helper-box">
+      <strong>How AnchorPod works:</strong>
+      You are placed anonymously in a pod of 5 peers. Each day you check in with simple self-care habits to help the pod keep its shared streak.
+    </div>
+
+    <p class="switch-prompt">Already a member? <a href="{% url 'login:login' %}">Log in</a></p>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/register/register.js' %}"></script>
+{% endblock %}

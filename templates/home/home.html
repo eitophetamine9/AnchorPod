@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+  <div class="dashboard-topline">
+    <div>
+      <p class="eyebrow">{{ today_display }}</p>
+      <h1>Good day, <em>{{ profile.nickname }}.</em></h1>
+    </div>
+    <span class="pod-tag">POD 07 <i></i> ACTIVE</span>
+  </div>
+
+  {% if user_checked_in %}
+    <div class="checked-in-banner">
+      <span>&#10003;</span>
+      <strong>You are checked in for today!</strong> Your pod can see that you showed up.
+    </div>
+  {% endif %}
+
+  <div class="dashboard-grid">
+    <!-- Rhythm & Streak Card -->
+    <section class="streak-card">
+      <div>
+        <p class="eyebrow light-eyebrow">Your shared rhythm</p>
+        <h2>{{ streak }}<small> days</small></h2>
+        <p class="streak-caption">Every person who checks in<br>keeps the circle moving.</p>
+      </div>
+      <div class="progress-ring">
+        <div>
+          <strong>{{ checked_in }}/{{ total_members }}</strong>
+          <span>checked in</span>
+        </div>
+      </div>
+      <div class="week-row">
+        <span class="done">M</span>
+        <span class="done">T</span>
+        <span class="done">W</span>
+        <span class="done">T</span>
+        <span class="today">F</span>
+        <span>S</span>
+        <span>S</span>
+      </div>
+    </section>
+
+    <!-- Daily Small Wins / Goals Card -->
+    <section class="checkin-card">
+      <div class="card-heading">
+        <div>
+          <p class="eyebrow">Your small wins</p>
+          <h2>What can you hold today?</h2>
+        </div>
+        <span class="date-chip">{{ today_chip }}</span>
+      </div>
+
+      <div class="goal-list">
+        {% for goal in profile.goals %}
+          <div class="goal-row" style="cursor: pointer;">
+            <span class="checkbox {% if user_checked_in and forloop.first %}checked{% endif %}">
+              {% if user_checked_in and forloop.first %}&#10003;{% endif %}
+            </span>
+            <span>{{ goal }}</span>
+            <span class="goal-dot"></span>
+          </div>
+        {% empty %}
+          <div class="goal-row">
+            <span class="checkbox"></span>
+            <span>Drink a glass of water</span>
+            <span class="goal-dot"></span>
+          </div>
+          <div class="goal-row">
+            <span class="checkbox"></span>
+            <span>Step outside or breathe fresh air</span>
+            <span class="goal-dot"></span>
+          </div>
+          <div class="goal-row">
+            <span class="checkbox"></span>
+            <span>Study or rest for 25 minutes</span>
+            <span class="goal-dot"></span>
+          </div>
+        {% endfor %}
+      </div>
+
+      <form method="post" action="{% url 'home:check_in' %}">
+        {% csrf_token %}
+        <button class="primary-button checkin-button" type="submit" {% if user_checked_in %}style="background: #416b5e;"{% endif %}>
+          {% if user_checked_in %}
+            Checked in for today &#10003;
+          {% else %}
+            Check in with my pod
+          {% endif %}
+          <span>&rarr;</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- Pod Members Card -->
+    <section class="pod-card">
+      <div class="card-heading">
+        <div>
+          <p class="eyebrow">Your pod</p>
+          <h2>Five people, one rhythm.</h2>
+        </div>
+        <span class="anonymous-label">Anonymous</span>
+      </div>
+
+      <div class="member-list">
+        {% for pod_member in pod_members %}
+          <div class="member-row">
+            {% if pod_member.is_self and profile.profile_image %}
+              <img src="{{ profile.profile_image.url }}" alt="{{ pod_member.nickname }}" class="avatar avatar-img {% if pod_member.active %}avatar-active{% endif %}" width="32" height="32" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; max-width: 32px; max-height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; display: block;">
+            {% else %}
+              <span class="avatar {% if pod_member.active %}avatar-active{% endif %}" {% if pod_member.is_self and profile.avatar_color %}style="background: {{ profile.avatar_color }}; color: white;"{% endif %}>
+                {{ pod_member.initials }}
+              </span>
+            {% endif %}
+            <span class="member-name">
+              {% if pod_member.is_self %}You ({{ pod_member.nickname }}){% else %}{{ pod_member.nickname }}{% endif %}
+              <small>{{ pod_member.status }}</small>
+            </span>
+            {% if not pod_member.active and not pod_member.is_self %}
+              <form method="post" action="{% url 'home:nudge' %}" style="margin-left: auto;">
+                {% csrf_token %}
+                <input type="hidden" name="target" value="{{ pod_member.nickname }}">
+                <button class="nudge-button" type="submit">Send a nudge</button>
+              </form>
+            {% elif pod_member.active %}
+              <span class="status-check">OK</span>
+            {% else %}
+              <span class="status-check" style="color: var(--muted); font-size: 10px;">Pending</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Encouragement Note -->
+    <aside class="note-card">
+      <span class="note-icon">+</span>
+      <p class="eyebrow">A note for today</p>
+      <h3>You don't have to catch up. You only have to arrive.</h3>
+      <span class="note-line"></span>
+      <p class="note-small">One check-in is enough to keep the community going.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home/home.js' %}"></script>
+{% endblock %}

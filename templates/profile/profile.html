@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell profile-shell">
+  <div class="dashboard-topline">
+    <div>
+      <p class="eyebrow">Your Identity</p>
+      <h1>Pod <em>Profile</em></h1>
+    </div>
+    <span class="anonymous-label">Anonymous to your peers</span>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-header-group">
+      <div class="avatar-preview-container">
+        {% if profile.profile_image %}
+          <img id="avatar-preview-img" src="{{ profile.profile_image.url }}" alt="Profile Photo" class="avatar-preview-img" width="72" height="72" style="width: 72px; height: 72px; min-width: 72px; min-height: 72px; max-width: 72px; max-height: 72px; border-radius: 50%; object-fit: cover;" data-original-src="{{ profile.profile_image.url }}">
+          <div id="avatar-preview" class="avatar-preview-lg" style="display: none;">
+            {{ profile.nickname|slice:":1"|upper|default:"A" }}
+          </div>
+        {% else %}
+          <img id="avatar-preview-img" src="" alt="Profile Photo" class="avatar-preview-img" width="72" height="72" style="width: 72px; height: 72px; min-width: 72px; min-height: 72px; max-width: 72px; max-height: 72px; border-radius: 50%; object-fit: cover; display: none;">
+          <div id="avatar-preview" class="avatar-preview-lg">
+            {{ profile.nickname|slice:":1"|upper|default:"A" }}
+          </div>
+        {% endif %}
+      </div>
+      <div>
+        <h2 style="font: 400 28px Georgia, serif; margin: 0 0 4px 0;">{{ profile.nickname }}</h2>
+        <p style="margin: 0; color: var(--muted); font-size: 13px;">{{ user.username }} &bull; Member of Pod 07</p>
+      </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="form-stack">
+      {% csrf_token %}
+      
+      <div class="login-field-group">
+        <label for="id_nickname">Anonymous Nickname (Visible to your pod)</label>
+        <input id="id_nickname" name="nickname" type="text" value="{{ profile.nickname }}" placeholder="e.g. Anchor Fox" required>
+      </div>
+
+      <div class="login-field-group">
+        <label for="id_full_name">Full Name (Private - never shared with pod)</label>
+        <input id="id_full_name" name="full_name" type="text" value="{{ profile.full_name }}" placeholder="Your real name">
+      </div>
+
+      <div class="login-field-group">
+        <label>Avatar Color</label>
+        <div class="avatar-color-options">
+          <label>
+            {% if profile.avatar_color == '#ef8360' or not profile.avatar_color %}
+              <input type="radio" name="avatar_color" value="#ef8360" class="color-swatch-radio" checked>
+            {% else %}
+              <input type="radio" name="avatar_color" value="#ef8360" class="color-swatch-radio">
+            {% endif %}
+            <span class="color-swatch-label" style="background-color: #ef8360;"></span>
+          </label>
+          <label>
+            {% if profile.avatar_color == '#285a58' %}
+              <input type="radio" name="avatar_color" value="#285a58" class="color-swatch-radio" checked>
+            {% else %}
+              <input type="radio" name="avatar_color" value="#285a58" class="color-swatch-radio">
+            {% endif %}
+            <span class="color-swatch-label" style="background-color: #285a58;"></span>
+          </label>
+          <label>
+            {% if profile.avatar_color == '#5e7d9a' %}
+              <input type="radio" name="avatar_color" value="#5e7d9a" class="color-swatch-radio" checked>
+            {% else %}
+              <input type="radio" name="avatar_color" value="#5e7d9a" class="color-swatch-radio">
+            {% endif %}
+            <span class="color-swatch-label" style="background-color: #5e7d9a;"></span>
+          </label>
+          <label>
+            {% if profile.avatar_color == '#89729e' %}
+              <input type="radio" name="avatar_color" value="#89729e" class="color-swatch-radio" checked>
+            {% else %}
+              <input type="radio" name="avatar_color" value="#89729e" class="color-swatch-radio">
+            {% endif %}
+            <span class="color-swatch-label" style="background-color: #89729e;"></span>
+          </label>
+          <label>
+            {% if profile.avatar_color == '#5b8c6a' %}
+              <input type="radio" name="avatar_color" value="#5b8c6a" class="color-swatch-radio" checked>
+            {% else %}
+              <input type="radio" name="avatar_color" value="#5b8c6a" class="color-swatch-radio">
+            {% endif %}
+            <span class="color-swatch-label" style="background-color: #5b8c6a;"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="login-field-group">
+        <label for="id_bio">Personal Anchor Note / Bio</label>
+        <textarea id="id_bio" name="bio" class="textarea-field" placeholder="A gentle reminder to yourself when you're overwhelmed...">{{ profile.bio }}</textarea>
+      </div>
+
+      <div class="login-field-group">
+        <label for="id_goals">Daily Self-Care Goals (One per line)</label>
+        <textarea id="id_goals" name="goals" class="textarea-field" style="min-height: 110px;">{{ goals_text }}</textarea>
+        <p class="goals-hint">Tip: Keep goals small and achievable to maintain consistent progress.</p>
+      </div>
+
+      <div class="login-field-group">
+        <label for="id_profile_image">Profile Picture (PNG, JPG, WEBP)</label>
+        <div class="image-upload-box">
+          <input id="id_profile_image" name="profile_image" type="file" accept="image/*" class="image-file-input">
+          {% if profile.profile_image %}
+            <div class="current-image-meta">
+              <span class="photo-badge">&#128247; Photo attached</span>
+              <label class="image-remove-toggle">
+                <input type="checkbox" id="remove_image" name="remove_image">
+                <span>Remove photo (revert to anonymous avatar)</span>
+              </label>
+            </div>
+          {% endif %}
+        </div>
+        <p class="goals-hint">Your picture will be cropped to a circle on your profile, header, and pod cards.</p>
+      </div>
+
+      <button class="primary-button" type="submit" style="margin-top: 20px;">
+        Save Profile Changes <span>&rarr;</span>
+      </button>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function() {
+    var preview = document.getElementById("avatar-preview");
+    if (preview) {
+      preview.style.backgroundColor = "{{ profile.avatar_color|default:'#ef8360' }}";
+    }
+  })();
+</script>
+<script src="{% static 'js/profile/profile.js' %}"></script>
+{% endblock %}

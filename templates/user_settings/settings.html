@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Settings | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/user_settings/user_settings.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell settings-shell">
+  <div class="dashboard-topline">
+    <div>
+      <p class="eyebrow">Preferences & Privacy</p>
+      <h1>Account <em>Settings</em></h1>
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="settings-row">
+        <div class="settings-info">
+          <h4>Dark Mode</h4>
+          <p>Switch to a gentle, low-light theme for late night study sessions.</p>
+        </div>
+        <label class="switch">
+          {% if settings.dark_mode %}
+            <input type="checkbox" id="dark_mode" name="dark_mode" checked>
+          {% else %}
+            <input type="checkbox" id="dark_mode" name="dark_mode">
+          {% endif %}
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-info">
+          <h4>Email Notifications</h4>
+          <p>Receive a quiet morning summary when your pod begins check-ins.</p>
+        </div>
+        <label class="switch">
+          {% if settings.email_notifications %}
+            <input type="checkbox" id="email_notifications" name="email_notifications" checked>
+          {% else %}
+            <input type="checkbox" id="email_notifications" name="email_notifications">
+          {% endif %}
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-info">
+          <h4>Anonymous Encouragement Nudges</h4>
+          <p>Allow your pod members to send you friendly reminders when you haven't checked in.</p>
+        </div>
+        <label class="switch">
+          {% if settings.receive_nudges %}
+            <input type="checkbox" id="receive_nudges" name="receive_nudges" checked>
+          {% else %}
+            <input type="checkbox" id="receive_nudges" name="receive_nudges">
+          {% endif %}
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div id="unsaved-changes-banner" class="unsaved-banner" style="display: none;">
+        <span class="unsaved-dot"></span>
+        <span class="unsaved-text">You have unsaved changes. Be sure to click <strong>Save Preferences</strong> to apply them.</span>
+        <button type="button" id="discard-changes-btn" class="discard-btn">Reset</button>
+      </div>
+
+      <button class="primary-button" type="submit" style="margin-top: 24px;">
+        Save Preferences <span>&rarr;</span>
+      </button>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/user_settings/user_settings.js' %}"></script>
+{% endblock %}

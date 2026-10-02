@@ -1,0 +1,168 @@
+/* Profile Feature CSS */
+.profile-shell {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 50px 30px 80px;
+}
+
+.profile-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: 40px clamp(24px, 4vw, 48px);
+  box-shadow: 0 12px 40px rgba(51, 74, 55, 0.06);
+}
+
+.profile-header-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 36px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.avatar-preview-lg {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 400 28px Georgia, serif;
+  color: white;
+  background: var(--coral);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.avatar-color-options {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.color-swatch-label {
+  cursor: pointer;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.color-swatch-label:hover {
+  transform: scale(1.1);
+}
+
+.color-swatch-radio {
+  display: none;
+}
+
+.color-swatch-radio:checked + .color-swatch-label {
+  border-color: var(--ink);
+  transform: scale(1.15);
+}
+
+.textarea-field {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 14px;
+  border: 1px solid #d8ddd6;
+  background: #fbfcf8;
+  font: 14px "Trebuchet MS", sans-serif;
+  color: var(--ink);
+  resize: vertical;
+}
+
+.textarea-field:focus {
+  border-color: var(--coral);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(239, 131, 96, 0.15);
+}
+
+.goals-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* Avatar Preview & Image Upload */
+.avatar-preview-container {
+  width: 72px;
+  height: 72px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar-preview-img {
+  width: 72px !important;
+  height: 72px !important;
+  min-width: 72px !important;
+  min-height: 72px !important;
+  max-width: 72px !important;
+  max-height: 72px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  border: 2px solid var(--coral);
+  display: block;
+}
+
+.image-upload-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.image-file-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px dashed #cfd6cd;
+  background: #fbfcf8;
+  font: 13px "Trebuchet MS", sans-serif;
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+body.dark-theme .image-file-input {
+  background: #151d1d;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.current-image-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #eaf1ec;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--teal);
+}
+
+body.dark-theme .current-image-meta {
+  background: #1c2a27;
+  color: #92d8be;
+}
+
+.photo-badge {
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.image-remove-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #c9513e;
+}
+
+body.dark-theme .image-remove-toggle {
+  color: #f78d7e;
+}
+

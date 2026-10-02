@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Log in | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-intro">
+    <p class="eyebrow">Welcome back</p>
+    <h1>Keep your<br><em>anchor.</em></h1>
+    <p class="intro-copy">Your pod is a quiet place to return to when the day feels too big.</p>
+    <div class="quote">
+      "Showing up counts, even when it looks small."
+      <span>— a pod</span>
+    </div>
+  </div>
+
+  <div class="auth-panel">
+    <div class="panel-heading">
+      <p class="eyebrow">Member login</p>
+      <h2>Good to see you.</h2>
+    </div>
+
+    {% if error %}
+      <div class="login-form-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" class="form-stack">
+      {% csrf_token %}
+      <div class="login-field-group">
+        <label for="id_username">University email or username</label>
+        <input id="id_username" name="username" type="text" autocomplete="username" placeholder="you@university.edu" value="{{ username|default:'' }}" required>
+      </div>
+
+      <div class="login-field-group">
+        <label for="id_password">Password</label>
+        <input id="id_password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+      </div>
+
+      <button class="primary-button" type="submit">
+        Enter your pod <span>&rarr;</span>
+      </button>
+    </form>
+
+    <p class="switch-prompt">New to AnchorPod? <a href="{% url 'register:register' %}">Create an account</a></p>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/login/login.js' %}"></script>
+{% endblock %}

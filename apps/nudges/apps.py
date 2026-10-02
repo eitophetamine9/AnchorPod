@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class NudgesConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'apps.nudges'
+    label = 'nudges'

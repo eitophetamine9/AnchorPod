@@ -195,8 +195,8 @@ python manage.py test apps.home --keepdb
 
 ## Course & Academic Metadata
 
-* **Course**: CSIT327 — Advanced Database Systems / Web Systems
-* **Instructor**: Joemarie Comeros Amparo
+* **Course**: CSIT327 — Information Management 2
+* **Instructor**: Joemarie C. Amparo
 * **Topic**: Django Vertical Slicing Architecture & Supabase Cloud PostgreSQL Integration
 * **Student Author**: [eitophetamine9](https://github.com/eitophetamine9)
 

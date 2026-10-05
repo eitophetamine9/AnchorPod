@@ -11,11 +11,26 @@
 <section class="dashboard-shell">
   <div class="dashboard-topline">
     <div>
-      <p class="eyebrow">{{ today_display }}</p>
+      <p class="eyebrow">{{ today_display }} &bull; <strong>Day {{ day_number }}</strong></p>
       <h1>Good day, <em>{{ profile.nickname }}.</em></h1>
     </div>
-    <span class="pod-tag">POD 07 <i></i> ACTIVE</span>
+    <span class="pod-tag">{{ pod.name|upper }} <i></i> {{ pod.status|upper }}</span>
   </div>
+
+  {% if unread_nudges %}
+    {% for nudge in unread_nudges %}
+      <div class="nudge-alert-banner" id="nudge-banner-{{ nudge.id }}">
+        <div class="nudge-alert-content">
+          <span class="nudge-alert-badge">Anonymous Nudge</span>
+          <p class="nudge-alert-text">"{{ nudge.template.message }}"</p>
+        </div>
+        <form method="post" action="{% url 'nudges:dismiss' nudge.id %}" class="nudge-dismiss-form">
+          {% csrf_token %}
+          <button type="submit" class="nudge-dismiss-button" title="Dismiss nudge" aria-label="Dismiss nudge">&times;</button>
+        </form>
+      </div>
+    {% endfor %}
+  {% endif %}
 
   {% if user_checked_in %}
     <div class="checked-in-banner">
@@ -30,22 +45,26 @@
       <div>
         <p class="eyebrow light-eyebrow">Your shared rhythm</p>
         <h2>{{ streak }}<small> days</small></h2>
-        <p class="streak-caption">Every person who checks in<br>keeps the circle moving.</p>
+        <p class="streak-caption">
+          {% if user_checked_in %}
+            Pod rhythm held for today.<br>Circle is in motion.
+          {% else %}
+            Every person who checks in<br>keeps the circle moving.
+          {% endif %}
+        </p>
       </div>
-      <div class="progress-ring">
+      <div class="progress-ring" style="--progress-pct: {{ progress_pct }};">
         <div>
           <strong>{{ checked_in }}/{{ total_members }}</strong>
           <span>checked in</span>
         </div>
       </div>
       <div class="week-row">
-        <span class="done">M</span>
-        <span class="done">T</span>
-        <span class="done">W</span>
-        <span class="done">T</span>
-        <span class="today">F</span>
-        <span>S</span>
-        <span>S</span>
+        {% for day in week_days %}
+          <span class="{% if day.is_today %}today{% endif %} {% if day.completed %}done{% endif %}" title="{{ day.full_date }}{% if day.completed %} &bull; Checked in{% elif day.is_today %} &bull; Pending today{% endif %}">
+            {% if day.is_today and day.completed %}&#10003;{% else %}{{ day.label }}{% endif %}
+          </span>
+        {% endfor %}
       </div>
     </section>
 
@@ -113,10 +132,10 @@
       <div class="member-list">
         {% for pod_member in pod_members %}
           <div class="member-row">
-            {% if pod_member.is_self and profile.profile_image %}
-              <img src="{{ profile.profile_image.url }}" alt="{{ pod_member.nickname }}" class="avatar avatar-img {% if pod_member.active %}avatar-active{% endif %}" width="32" height="32" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; max-width: 32px; max-height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; display: block;">
+            {% if pod_member.profile_image %}
+              <img src="{{ pod_member.profile_image.url }}" alt="{{ pod_member.nickname }}" class="avatar avatar-img {% if pod_member.active %}avatar-active{% endif %}" width="32" height="32" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; max-width: 32px; max-height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; display: block;">
             {% else %}
-              <span class="avatar {% if pod_member.active %}avatar-active{% endif %}" {% if pod_member.is_self and profile.avatar_color %}style="background: {{ profile.avatar_color }}; color: white;"{% endif %}>
+              <span class="avatar {% if pod_member.active %}avatar-active{% endif %}" {% if pod_member.avatar_color %}style="background: {{ pod_member.avatar_color }}; color: white;"{% endif %}>
                 {{ pod_member.initials }}
               </span>
             {% endif %}
@@ -125,11 +144,7 @@
               <small>{{ pod_member.status }}</small>
             </span>
             {% if not pod_member.active and not pod_member.is_self %}
-              <form method="post" action="{% url 'home:nudge' %}" style="margin-left: auto;">
-                {% csrf_token %}
-                <input type="hidden" name="target" value="{{ pod_member.nickname }}">
-                <button class="nudge-button" type="submit">Send a nudge</button>
-              </form>
+              <button class="nudge-button open-nudge-modal-btn" type="button" data-recipient-id="{{ pod_member.user_id }}" data-recipient-name="{{ pod_member.nickname }}">Send a nudge</button>
             {% elif pod_member.active %}
               <span class="status-check">OK</span>
             {% else %}
@@ -150,6 +165,42 @@
     </aside>
   </div>
 </section>
+
+<!-- Anonymous Nudge Dialog Modal -->
+<dialog id="nudge-modal" class="nudge-dialog">
+  <div class="nudge-modal-card">
+    <div class="modal-header">
+      <div>
+        <p class="eyebrow">Support your pod</p>
+        <h3 id="nudge-modal-heading">Send Anonymous Nudge</h3>
+      </div>
+      <button type="button" id="close-nudge-modal" class="modal-close-btn" aria-label="Close modal">&times;</button>
+    </div>
+    <p class="nudge-modal-subtext">
+      Remind <strong id="nudge-target-name">your peer</strong> that they are not alone. To keep our community kind and safe, choose from pre-approved notes:
+    </p>
+
+    <form method="post" action="{% url 'nudges:send' %}" id="nudge-form">
+      {% csrf_token %}
+      <input type="hidden" name="recipient_id" id="nudge-recipient-input" value="">
+      
+      <div class="nudge-templates-container">
+        {% for template in nudge_templates %}
+          <label class="nudge-template-option">
+            <input type="radio" name="template_id" value="{{ template.id }}" {% if forloop.first %}checked{% endif %} required>
+            <span class="template-radio-indicator"></span>
+            <span class="template-message">{{ template.message }}</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="nudge-modal-actions">
+        <button type="button" id="cancel-nudge-btn" class="modal-btn-cancel">Cancel</button>
+        <button type="submit" class="primary-button modal-btn-submit">Send Nudge &rarr;</button>
+      </div>
+    </form>
+  </div>
+</dialog>
 {% endblock %}
 
 {% block extra_js %}

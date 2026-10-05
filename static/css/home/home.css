@@ -24,11 +24,311 @@
   margin-bottom: 20px;
 }
 
-.checkin-complete-badge {
+body.dark-theme .checked-in-banner {
+  background: #172a22;
+  border-left-color: #63ab74;
+  color: #b8e2c4;
+}
+
+/* Incoming Anonymous Nudge Alert Banner */
+.nudge-alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: #fff4ec;
+  border: 1px solid #fed7aa;
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(239, 131, 96, 0.08);
+  animation: slideDown 0.3s ease-out;
+}
+
+body.dark-theme .nudge-alert-banner {
+  background: #2a1a14;
+  border-color: #7c2d12;
+  border-left-color: var(--accent);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nudge-alert-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.nudge-alert-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--accent);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.nudge-alert-text {
+  margin: 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.nudge-dismiss-button {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.nudge-dismiss-button:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text);
+}
+
+body.dark-theme .nudge-dismiss-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+/* Nudge Dialog Modal */
+.nudge-dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 0;
+  background: transparent;
+  max-width: 500px;
+  width: 90vw;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.nudge-dialog::backdrop {
+  background: rgba(18, 24, 24, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.nudge-modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  color: var(--text);
+}
+
+body.dark-theme .nudge-modal-card {
+  background: #1a2222;
+  border-color: #2b3636;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.modal-header h3 {
+  margin: 4px 0 0 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.modal-close-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text);
+}
+
+.nudge-modal-subtext {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+.nudge-templates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.nudge-template-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+body.dark-theme .nudge-template-option {
+  background: #141b1b;
+  border-color: #2b3636;
+}
+
+.nudge-template-option:hover {
+  border-color: var(--accent);
+  transform: translateX(2px);
+}
+
+.nudge-template-option input[type="radio"] {
+  display: none;
+}
+
+.template-radio-indicator {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.nudge-template-option input[type="radio"]:checked + .template-radio-indicator {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.nudge-template-option input[type="radio"]:checked + .template-radio-indicator::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+}
+
+.nudge-template-option:has(input[type="radio"]:checked) {
+  border-color: var(--accent);
+  background: rgba(239, 131, 96, 0.08);
+}
+
+.template-message {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.nudge-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 10px 18px;
+  border-radius: 6px;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.modal-btn-cancel:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.modal-btn-submit {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: #63ab74;
-  font-weight: 700;
-  font-size: 12px;
+  gap: 8px;
+  font-size: 13px;
+  padding: 10px 20px;
 }
+
+/* Dynamic Day Counter & Week Row Styles */
+.dashboard-topline .eyebrow strong {
+  color: var(--accent);
+}
+
+.week-row span {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: default;
+}
+
+.week-row span:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.week-row .today.done {
+  background: #63ab74 !important;
+  border-color: #63ab74 !important;
+  color: white !important;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(99, 171, 116, 0.45);
+}
+
+body.dark-theme .week-row .today.done {
+  background: #3e8150 !important;
+  border-color: #3e8150 !important;
+}
+
+.progress-ring {
+  background: conic-gradient(
+    #f3ae8e 0% calc(var(--progress-pct, 40) * 1%),
+    rgba(255, 255, 255, 0.15) calc(var(--progress-pct, 40) * 1%) 100%
+  ) !important;
+  border: none !important;
+  padding: 10px !important;
+}
+
+.progress-ring > div {
+  background: #2a3d38 !important;
+  border-radius: 50% !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+body.dark-theme .progress-ring > div {
+  background: #141c1a !important;
+}
+

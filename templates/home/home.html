@@ -75,36 +75,43 @@
           <p class="eyebrow">Your small wins</p>
           <h2>What can you hold today?</h2>
         </div>
-        <span class="date-chip">{{ today_chip }}</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="goal-progress-chip" id="goal-progress-chip">{{ goals_completed_count }}/{{ goals_total_count }} completed</span>
+          <span class="date-chip">{{ today_chip }}</span>
+        </div>
       </div>
 
-      <div class="goal-list">
-        {% for goal in profile.goals %}
-          <div class="goal-row" style="cursor: pointer;">
-            <span class="checkbox {% if user_checked_in and forloop.first %}checked{% endif %}">
-              {% if user_checked_in and forloop.first %}&#10003;{% endif %}
+      <div class="goal-list" id="goal-list">
+        {% for goal in user_goals %}
+          <div class="goal-row {% if goal.completed %}goal-done{% endif %}" data-goal-id="{{ goal.id }}">
+            <span class="checkbox {% if goal.completed %}checked{% endif %}">
+              {% if goal.completed %}&#10003;{% endif %}
             </span>
-            <span>{{ goal }}</span>
-            <span class="goal-dot"></span>
+            <span class="goal-title">{{ goal.title }}</span>
+            <span class="goal-category-dot category-{{ goal.category }}" title="{{ goal.category|title }}"></span>
+            <button type="button" class="goal-remove-btn" data-goal-id="{{ goal.id }}" title="Remove habit" aria-label="Remove habit">&times;</button>
           </div>
         {% empty %}
-          <div class="goal-row">
-            <span class="checkbox"></span>
-            <span>Drink a glass of water</span>
-            <span class="goal-dot"></span>
-          </div>
-          <div class="goal-row">
-            <span class="checkbox"></span>
-            <span>Step outside or breathe fresh air</span>
-            <span class="goal-dot"></span>
-          </div>
-          <div class="goal-row">
-            <span class="checkbox"></span>
-            <span>Study or rest for 25 minutes</span>
-            <span class="goal-dot"></span>
+          <div class="empty-goals-hint">
+            <p>No active goals yet. Add one below!</p>
           </div>
         {% endfor %}
       </div>
+
+      <!-- Inline Add Goal Form -->
+      <form method="post" action="{% url 'goals:create' %}" id="add-goal-form" class="add-goal-form">
+        {% csrf_token %}
+        <div class="add-goal-row">
+          <input type="text" name="title" id="add-goal-input" placeholder="+ Add a gentle daily habit..." maxlength="120" required autocomplete="off">
+          <select name="category" id="add-goal-category" class="add-goal-category-select" title="Habit Category">
+            <option value="wellness">Wellness</option>
+            <option value="physical">Physical</option>
+            <option value="mindfulness">Mindfulness</option>
+            <option value="academic">Academic</option>
+          </select>
+          <button type="submit" class="add-goal-btn" title="Add habit" aria-label="Add habit">+</button>
+        </div>
+      </form>
 
       <form method="post" action="{% url 'home:check_in' %}">
         {% csrf_token %}

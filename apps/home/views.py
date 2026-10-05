@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from apps.goals.services import get_user_goals_with_today_status
 from apps.nudges.services import ensure_default_templates, get_unread_nudges_for_user
 from apps.pods.services import get_or_create_user_pod, update_pod_daily_status
 from apps.pods.models import PodMembership
@@ -120,6 +121,9 @@ def home_view(request):
     unread_nudges = get_unread_nudges_for_user(request.user)
     nudge_templates = ensure_default_templates()
 
+    # Retrieve interactive self-care goals and today's completion status
+    user_goals, goals_completed_count, goals_total_count = get_user_goals_with_today_status(request.user, today)
+
     return render(request, "home/home.html", {
         "profile": profile,
         "pod": pod,
@@ -133,6 +137,9 @@ def home_view(request):
         "progress_pct": progress_pct,
         "unread_nudges": unread_nudges,
         "nudge_templates": nudge_templates,
+        "user_goals": user_goals,
+        "goals_completed_count": goals_completed_count,
+        "goals_total_count": goals_total_count,
         "today_display": today.strftime("%A, %B %d"),
         "today_chip": today.strftime("%b %d").upper(),
     })

@@ -332,3 +332,164 @@ body.dark-theme .progress-ring > div {
   background: #141c1a !important;
 }
 
+/* Interactive Self-Care Goals Styling */
+.goal-progress-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: rgba(99, 171, 116, 0.15);
+  color: #416b5e;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 171, 116, 0.3);
+  transition: all 0.2s ease;
+}
+
+body.dark-theme .goal-progress-chip {
+  background: rgba(99, 171, 116, 0.2);
+  color: #a7e3bc;
+  border-color: rgba(99, 171, 116, 0.35);
+}
+
+.goal-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  position: relative;
+}
+
+.goal-row:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.dark-theme .goal-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.goal-title {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.goal-done .goal-title {
+  text-decoration: line-through;
+  opacity: 0.5;
+  color: var(--muted);
+}
+
+.goal-category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.category-physical { background: #63ab74; }
+.category-mindfulness { background: #6c9a8b; }
+.category-academic { background: #ef8360; }
+.category-wellness { background: #818cf8; }
+
+.goal-remove-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.goal-row:hover .goal-remove-btn {
+  opacity: 1;
+}
+
+.goal-remove-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Inline Add Goal Form */
+.add-goal-form {
+  margin-top: 14px;
+  margin-bottom: 10px;
+}
+
+.add-goal-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 6px;
+  transition: border-color 0.15s ease;
+}
+
+.add-goal-row:focus-within {
+  border-color: var(--accent);
+}
+
+body.dark-theme .add-goal-row {
+  background: #141b1b;
+  border-color: #2b3636;
+}
+
+#add-goal-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+}
+
+#add-goal-input::placeholder {
+  color: var(--muted);
+}
+
+.add-goal-category-select {
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  outline: none;
+  padding: 4px 6px;
+}
+
+body.dark-theme .add-goal-category-select {
+  background: #141b1b;
+  color: var(--text);
+}
+
+.add-goal-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.add-goal-btn:hover {
+  transform: scale(1.08);
+  background: #df6f49;
+}
+

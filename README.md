@@ -75,14 +75,27 @@ AnchorPod/
 * **Unsaved Preferences Protection**: Real-time dirty-state tracking with an animated warning banner and `beforeunload` navigation guards to alert students of uncommitted changes.
 * **Solid Slate Dark Theme**: Custom dark palette (`#121818`) with warm paper accents and high-contrast typography.
 
-### 4. Daily Attendance Check-In (`apps/home`)
-* "Check in with my pod" one-click action logging directly to `home_dailycheckin` with composite unique constraints preventing duplicate daily submissions.
-* Adaptive navigation showing the student's mini-avatar thumbnail and active status across all authenticated pages.
+### 4. Dynamic Pod Membership & Community Provisioning (`apps/pods`)
+* **Automated Pod Allocation**: Automatically allocates students into balanced pods of 5 (`pod_pod`, `pod_membership`).
+* **Simulated Peer Rhythms**: For developer testing and solo evaluation, automatically provisions 4 anonymous student peers (`Northstar`, `Juniper`, `Moss`, `Solace`) with distinct avatar colors, anonymous profiles, and simulated check-ins.
+* **Administrative Controls**: Full Django Admin registration for `Pod`, `PodMembership`, `PodStreak`, `PodDailySummary`, and `PodMatchingPreference`.
 
-### 5. Supabase PostgreSQL Cloud Integration
+### 5. Daily Attendance, Streaks & Day Counter (`apps/home`, `apps/pods`)
+* **Pod Journey Day Counter**: Live calculation of active days since pod formation (`Day X`), displayed prominently in the dashboard header.
+* **Dynamic Consecutive Streak**: Tracks actual consecutive daily check-ins from `home_dailycheckin`, dynamically incrementing from `0 days` to `1 day` and beyond as the student completes their check-in.
+* **Interactive 7-Day Week Tracker**: Dynamically mapped Monday-to-Sunday calendar (`M`, `T`, `W`, `T`, `F`, `S`, `S`) with hover tooltips, pending states (coral indicator), and glowing green checkmark transitions (`✓`) upon daily completion.
+* **Conic Progress Ring**: Visual completion ring driven by CSS custom properties and conic gradients reflecting the fraction of pod members checked in for the day (e.g. 2/5 -> 3/5).
+
+### 6. Anonymous Peer Nudge System (`apps/nudges`)
+* **Anti-Bullying Safeguard**: Strictly eliminates free-text chatting, restricting peer interaction to pre-approved positive encouragement templates (`nudge_template`).
+* **Accessible Modal Picker**: Native `<dialog>` modal allowing students to select an encouragement phrase to gently remind un-checked-in peers that their pod is here.
+* **Real-Time Notification Banner**: Incoming nudges appear at the top of the recipient's dashboard upon login, with smooth asynchronous AJAX dismissal.
+* **Secure API Endpoints**: Endpoints enforce pod boundary validation (rejecting attempts to nudge users outside one's active pod or self-nudging).
+
+### 7. Supabase PostgreSQL Cloud Integration & Testing
 * Connected to hosted **Supabase PostgreSQL** via AWS Tokyo Session Pooler with SSL encryption.
 * All **14 physical ERD tables** migrated and live in the public schema.
-* Comprehensive automated test suite with **16 passing unit tests**.
+* Comprehensive automated test suite with **25 passing unit tests** across all vertical slices.
 
 ---
 
@@ -90,14 +103,10 @@ AnchorPod/
 
 The complete database schema for these features is already created and migrated in Supabase. The business logic and user interfaces are currently in active development:
 
-- [ ] **Pod Matching Engine (`apps/pods`)**:
-  * Python matchmaking algorithm utilizing sets and arrays to group solitary students into balanced pods of 5 based on shared activity windows (`pod_matching_preference`).
-- [ ] **Collective Streak Calculation (`pod_streak`, `pod_daily_summary`)**:
-  * Backend logic that evaluates attendance across all 5 pod members, incrementing the group streak counter only when every member completes their daily check-in.
-- [ ] **Anonymous Nudge System (`apps/nudges`)**:
-  * Modal interface enabling students to send pre-approved positive encouragement notifications (`nudge_template`) to pod members who have not yet checked in for the day.
-- [ ] **Interactive Granular Goals (`apps/goals`)**:
-  * Expanding static checklists into dynamic interactive daily goals with per-day completion tracking (`goal_dailycompletion`) via AJAX/Fetch API.
+- [ ] **Smart Pod Matching Preference Algorithm (`apps/pods`)**:
+  * Python matchmaking engine utilizing sets and arrays to group solitary students into balanced pods of 5 based on shared time slots (`pod_matching_preference`).
+- [ ] **Interactive Granular Goals Checklist (`apps/goals`)**:
+  * Expanding static checklists into dynamic interactive daily goals with per-day completion tracking (`goal_dailycompletion`) via asynchronous Fetch API requests.
 - [ ] **Dead Pod Reshuffle Worker (`pod_reshuffle_log`)**:
   * Background routine to detect abandoned accounts (e.g. 3+ days inactive) and merge active solitary students into healthy pods.
 
@@ -189,14 +198,15 @@ python manage.py test --keepdb
 # Run tests for a specific feature app
 python manage.py test apps.profile --keepdb
 python manage.py test apps.home --keepdb
+python manage.py test apps.pods --keepdb
+python manage.py test apps.nudges --keepdb
 ```
 
 ---
 
 ## Course & Academic Metadata
 
-* **Course**: CSIT327 — Advanced Database Systems / Web Systems
-* **Instructor**: Joemarie Comeros Amparo
-* **Topic**: Django Vertical Slicing Architecture & Supabase Cloud PostgreSQL Integration
+* **Course**: CSIT327 — Information Management 2
+* **Instructor**: Joemarie C. Amparo
 * **Student Author**: [eitophetamine9](https://github.com/eitophetamine9)
 

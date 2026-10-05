@@ -92,10 +92,16 @@ AnchorPod/
 * **Real-Time Notification Banner**: Incoming nudges appear at the top of the recipient's dashboard upon login, with smooth asynchronous AJAX dismissal.
 * **Secure API Endpoints**: Endpoints enforce pod boundary validation (rejecting attempts to nudge users outside one's active pod or self-nudging).
 
-### 7. Supabase PostgreSQL Cloud Integration & Testing
+### 7. Interactive Self-Care Goals & Habit Engine (`apps/goals`)
+* **Foundational Habit Seeding**: Automatically provisions 3 foundational self-care habits for new students (*Drink a glass of water*, *Step outside or breathe fresh air*, *Study or rest for 25 minutes*) mapped across `physical`, `mindfulness`, and `academic` categories.
+* **Asynchronous Checkoffs**: Real-time habit toggle via Fetch API with zero full-page reload, updating `goal_dailycompletion` for today in Supabase PostgreSQL.
+* **Visual Progress Tracking**: Real-time progress chip showing completed ratios (e.g. `2/3 completed`) and strikethrough transition animations.
+* **Custom Habit Management**: Inline form allowing students to create personalized habits with category indicators and deactivation capabilities.
+
+### 8. Supabase PostgreSQL Cloud Integration & Testing
 * Connected to hosted **Supabase PostgreSQL** via AWS Tokyo Session Pooler with SSL encryption.
 * All **14 physical ERD tables** migrated and live in the public schema.
-* Comprehensive automated test suite with **25 passing unit tests** across all vertical slices.
+* Comprehensive automated test suite with **34 passing unit tests** across all vertical slices.
 
 ---
 
@@ -105,8 +111,6 @@ The complete database schema for these features is already created and migrated 
 
 - [ ] **Smart Pod Matching Preference Algorithm (`apps/pods`)**:
   * Python matchmaking engine utilizing sets and arrays to group solitary students into balanced pods of 5 based on shared time slots (`pod_matching_preference`).
-- [ ] **Interactive Granular Goals Checklist (`apps/goals`)**:
-  * Expanding static checklists into dynamic interactive daily goals with per-day completion tracking (`goal_dailycompletion`) via asynchronous Fetch API requests.
 - [ ] **Dead Pod Reshuffle Worker (`pod_reshuffle_log`)**:
   * Background routine to detect abandoned accounts (e.g. 3+ days inactive) and merge active solitary students into healthy pods.
 
@@ -200,6 +204,7 @@ python manage.py test apps.profile --keepdb
 python manage.py test apps.home --keepdb
 python manage.py test apps.pods --keepdb
 python manage.py test apps.nudges --keepdb
+python manage.py test apps.goals --keepdb
 ```
 
 ---

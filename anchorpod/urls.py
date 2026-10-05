@@ -30,6 +30,7 @@ urlpatterns = [
     path('profile/', include('apps.profile.urls')),
     path('settings/', include('apps.user_settings.urls')),
     path('nudges/', include('apps.nudges.urls')),
+    path('goals/', include('apps.goals.urls')),
     path('', include('apps.home.urls')),
 
     # Non-namespaced aliases for backward compatibility with existing tests

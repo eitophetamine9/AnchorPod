@@ -208,5 +208,6 @@ python manage.py test apps.nudges --keepdb
 
 * **Course**: CSIT327 — Information Management 2
 * **Instructor**: Joemarie C. Amparo
+* **Topic**: Django Vertical Slicing Architecture & Supabase Cloud PostgreSQL Integration
 * **Student Author**: [eitophetamine9](https://github.com/eitophetamine9)
 

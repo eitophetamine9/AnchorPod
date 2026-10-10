@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Pod - {{ pod.name }} | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home/home.css' %}?v=1.2">
+<link rel="stylesheet" href="{% static 'css/pods/my_pod.css' %}?v=1.0">
+{% endblock %}
+
+{% block content %}
+<div class="my-pod-shell">
+
+  <!-- ========================================================================
+       TOP HEADER & BREADCRUMB
+       ======================================================================== -->
+  <header class="pod-header-section">
+    <div class="pod-header-titles">
+      <div class="pod-breadcrumb">
+        <a href="{% url 'home:home' %}">&larr; Dashboard</a> / <span>Micro-Community</span>
+      </div>
+      <div class="pod-header-title-row">
+        <h1 class="pod-main-title">{{ pod.name }}</h1>
+        <div class="pod-status-badge">
+          <span class="pod-status-indicator"></span>
+          <span>Active ({{ total_members }}/5)</span>
+        </div>
+      </div>
+      <p class="pod-header-subtitle">
+        Your quiet five-person study circle. Showing up together, every single day without social pressure or noise.
+      </p>
+    </div>
+
+    <div class="pod-header-actions">
+      <a href="{% url 'home:home' %}" class="pod-btn-secondary">
+        <span>&larr;</span> Back to Home
+      </a>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       QUICK METRIC TILES
+       ======================================================================== -->
+  <section class="pod-metrics-grid">
+    <div class="pod-metric-card">
+      <div class="metric-card-label">Pod Journey</div>
+      <div class="metric-card-value">
+        Day {{ day_number }}
+        <small>together</small>
+      </div>
+      <div class="metric-card-subtext">Formed {{ pod.formation_date|default:"recently"|date:"M d, Y" }}</div>
+    </div>
+
+    <div class="pod-metric-card">
+      <div class="metric-card-label">Shared Pod Streak</div>
+      <div class="metric-card-value">
+        {{ pod_streak.current_streak }}
+        <small>days</small>
+      </div>
+      <div class="metric-card-subtext">Record: {{ pod_streak.longest_streak }} days unbroken</div>
+    </div>
+
+    <div class="pod-metric-card">
+      <div class="metric-card-label">Today's Check-Ins</div>
+      <div class="metric-card-value">
+        {{ checked_in_count }}<span style="font-size: 20px; color: var(--muted);">/{{ total_members }}</span>
+        <small>checked in</small>
+      </div>
+      <div class="mini-progress-track">
+        <div class="mini-progress-fill" style="width: {{ progress_pct }}%;"></div>
+      </div>
+    </div>
+
+    <div class="pod-metric-card">
+      <div class="metric-card-label">Target Schedule Rhythm</div>
+      <div class="metric-card-value" style="font-size: 24px;">
+        {{ preference.preferred_time_slot }}
+        <small>cadence</small>
+      </div>
+      <div class="metric-card-subtext">{{ preference.timezone }}</div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       7-DAY COLLECTIVE MOMENTUM TRACKER
+       ======================================================================== -->
+  <section class="momentum-tracker-card">
+    <div class="momentum-tracker-header">
+      <div>
+        <p class="eyebrow" style="margin-bottom: 6px;">Collective Consistency</p>
+        <h3>7-Day Pod Rhythm Overview</h3>
+      </div>
+      <span class="date-chip">{{ today_display }}</span>
+    </div>
+
+    <div class="momentum-days-strip">
+      {% for day in momentum_history %}
+        <div class="momentum-day-box {% if day.is_today %}is-today{% endif %} {% if day.all_completed %}is-perfect{% endif %}">
+          <div class="momentum-day-name">{{ day.day_name }}</div>
+          <div class="momentum-day-date">{{ day.day_display }}</div>
+          <div class="momentum-ratio-chip">
+            {% if day.all_completed %}&#9733; {% endif %}{{ day.ratio_str }}
+          </div>
+          <div class="momentum-bar-mini">
+            <div class="momentum-bar-fill" style="width: {{ day.progress_pct }}%;"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       POD MEMBERS ROSTER (5 RICH CARDS)
+       ======================================================================== -->
+  <section class="members-roster-section">
+    <div class="section-title-row">
+      <div>
+        <p class="eyebrow" style="margin-bottom: 6px;">Pod Roster</p>
+        <h2>The Five Anchors</h2>
+      </div>
+      <span class="anonymous-label">100% Anonymous &bull; Zero Harassment</span>
+    </div>
+
+    <div class="members-grid">
+      {% for member in pod_members %}
+        <article class="member-card {% if member.is_self %}is-self{% endif %}">
+          <div>
+            <div class="member-card-header">
+              <div class="member-avatar-box" {% if member.avatar_color and not member.profile_image %}style="background: {{ member.avatar_color }};"{% endif %}>
+                {% if member.profile_image %}
+                  <img src="{{ member.profile_image.url }}" alt="{{ member.nickname }}" class="member-avatar-img">
+                {% else %}
+                  {{ member.initials }}
+                {% endif %}
+                <span class="avatar-online-dot {% if member.is_checked %}checked{% endif %}" title="{% if member.is_checked %}Checked in today{% else %}Pending{% endif %}"></span>
+              </div>
+
+              <div class="member-card-names">
+                <div class="member-display-name">
+                  <span>{{ member.nickname }}</span>
+                  {% if member.is_self %}
+                    <span class="self-tag">You</span>
+                  {% endif %}
+                </div>
+                <div class="member-role-line">
+                  <span class="member-role-badge">{{ member.role }}</span> &bull; 
+                  <span>Joined {{ member.joined_display }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="member-status-chip {% if member.is_checked %}checked{% else %}pending{% endif %}">
+              {% if member.is_checked %}
+                <span>&#10003;</span> Checked in for today
+              {% else %}
+                <span>&bull;</span> Pending daily check-in
+              {% endif %}
+            </div>
+
+            <p class="member-bio">"{{ member.bio }}"</p>
+
+            <div class="member-habits-section">
+              <div class="member-habits-title">Self-Care Commitments</div>
+              <div class="member-habits-list">
+                {% for goal in member.goals %}
+                  <span class="habit-chip">{{ goal }}</span>
+                {% empty %}
+                  <span class="habit-chip">Daily study sprint</span>
+                  <span class="habit-chip">Stay hydrated</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <div class="member-card-footer">
+            <div class="member-streak-badge">
+              <span>&#9832;</span>
+              <span><strong>{{ member.streak }}</strong> day streak</span>
+            </div>
+
+            {% if member.is_self %}
+              <a href="{% url 'profile:profile' %}" class="member-action-btn btn-profile">
+                Edit Profile &rarr;
+              </a>
+            {% else %}
+              <button type="button" class="member-action-btn btn-nudge open-nudge-modal-btn" data-recipient-id="{{ member.user_id }}" data-recipient-name="{{ member.nickname }}">
+                <span>&#9829;</span> Send Nudge
+              </button>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       STUDY RHYTHM PREFERENCES
+       ======================================================================== -->
+  <section class="pod-preference-card">
+    <div class="preference-card-heading">
+      <div>
+        <p class="eyebrow" style="margin-bottom: 6px;">Schedule Alignment</p>
+        <h3>Your Study Rhythm Preferences</h3>
+        <p style="font-size: 13px; color: var(--muted); margin: 0;">
+          AnchorPod synchronizes you with students active during the same study window to maximize quiet solidarity.
+        </p>
+      </div>
+      <span class="date-chip">Auto-Matched</span>
+    </div>
+
+    <form method="post" action="{% url 'pods:preferences' %}" class="preference-form">
+      {% csrf_token %}
+      <div class="preference-form-grid">
+        <div class="preference-field">
+          <label for="preferred_time_slot">Preferred Study Window</label>
+          <select name="preferred_time_slot" id="preferred_time_slot">
+            <option value="Morning" {% if preference.preferred_time_slot == "Morning" %}selected{% endif %}>Morning (6:00 AM - 12:00 PM)</option>
+            <option value="Afternoon" {% if preference.preferred_time_slot == "Afternoon" %}selected{% endif %}>Afternoon (12:00 PM - 5:00 PM)</option>
+            <option value="Evening" {% if preference.preferred_time_slot == "Evening" %}selected{% endif %}>Evening (5:00 PM - 10:00 PM)</option>
+            <option value="Night" {% if preference.preferred_time_slot == "Night" %}selected{% endif %}>Night Owl (10:00 PM - 3:00 AM)</option>
+          </select>
+        </div>
+
+        <div class="preference-field">
+          <label for="timezone">Campus Timezone</label>
+          <input type="text" name="timezone" id="timezone" value="{{ preference.timezone }}" placeholder="e.g. Asia/Manila, America/New_York" required>
+        </div>
+
+        <div class="preference-field">
+          <button type="submit" class="preference-submit-btn">Save Rhythm</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- ========================================================================
+       SOLIDARITY MANIFESTO
+       ======================================================================== -->
+  <section class="pod-manifesto-card">
+    <div class="manifesto-item">
+      <h4><span class="manifesto-mark">&#9678;</span> Show Up For Yourself</h4>
+      <p>
+        One check-in per day is all it takes to turn your dot green and keep the pod streak going. No guilt, no catch-up burden.
+      </p>
+    </div>
+
+    <div class="manifesto-item">
+      <h4><span class="manifesto-mark">&#9825;</span> Zero Free-Text Harassment</h4>
+      <p>
+        No unsolicited DMs, no awkward networking, no toxic commentary. Peer encouragement is strictly positive and pre-scripted.
+      </p>
+    </div>
+
+    <div class="manifesto-item">
+      <h4><span class="manifesto-mark">&#9733;</span> Active Pod Protection</h4>
+      <p>
+        If pod members ever become dormant, AnchorPod rebalances active students into thriving pods so momentum never fades.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<!-- ========================================================================
+     ANONYMOUS NUDGE DIALOG MODAL
+     ======================================================================== -->
+<dialog id="nudge-modal" class="nudge-dialog">
+  <div class="nudge-modal-card">
+    <div class="modal-header">
+      <div>
+        <p class="eyebrow">Support your pod</p>
+        <h3 id="nudge-modal-heading">Send Anonymous Nudge</h3>
+      </div>
+      <button type="button" id="close-nudge-modal" class="modal-close-btn" aria-label="Close modal">&times;</button>
+    </div>
+    <p class="nudge-modal-subtext">
+      Remind <strong id="nudge-target-name">your peer</strong> that they are not alone. Choose from pre-approved notes:
+    </p>
+
+    <form method="post" action="{% url 'nudges:send' %}" id="nudge-form">
+      {% csrf_token %}
+      <input type="hidden" name="recipient_id" id="nudge-recipient-input" value="">
+
+      <div class="nudge-templates-container">
+        {% for template in nudge_templates %}
+          <label class="nudge-template-option">
+            <input type="radio" name="template_id" value="{{ template.id }}" {% if forloop.first %}checked{% endif %} required>
+            <span class="template-radio-indicator"></span>
+            <span class="template-message">{{ template.message }}</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="nudge-modal-actions">
+        <button type="button" id="cancel-nudge-btn" class="modal-btn-cancel">Cancel</button>
+        <button type="submit" class="primary-button modal-btn-submit">Send Nudge &rarr;</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/pods/my_pod.js' %}?v=1.0"></script>
+{% endblock %}

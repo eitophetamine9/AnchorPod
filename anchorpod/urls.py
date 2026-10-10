@@ -22,6 +22,7 @@ from django.urls import include, path
 from apps.login.views import login_view, logout_view
 from apps.register.views import register_view
 from apps.home.views import home_view, check_in_view
+from apps.pods.views import my_pod_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,6 +32,8 @@ urlpatterns = [
     path('settings/', include('apps.user_settings.urls')),
     path('nudges/', include('apps.nudges.urls')),
     path('goals/', include('apps.goals.urls')),
+    path('pod/', include('apps.pods.urls')),
+    path('pods/', my_pod_view, name='pods_alias'),
     path('', include('apps.home.urls')),
 
     # Non-namespaced aliases for backward compatibility with existing tests

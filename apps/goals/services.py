@@ -99,23 +99,17 @@ def toggle_goal_completion(user, goal_id, target_date=None):
         return None, False, 0, 0, "Goal not found."
 
     with transaction.atomic():
-        completion = DailyGoalCompletion.objects.filter(
+        completion, created = DailyGoalCompletion.objects.get_or_create(
             goal=goal,
             user=user,
-            date=target_date
-        ).first()
+            date=target_date,
+            defaults={'completed': True}
+        )
 
-        if completion:
+        if not created:
             completion.completed = not completion.completed
             completion.save()
-            is_completed = completion.completed
-        else:
-            completion = DailyGoalCompletion.objects.create(
-                goal=goal,
-                user=user,
-                completed=True
-            )
-            is_completed = True
+        is_completed = completion.completed
 
         # Calculate updated counts
         active_goal_ids = set(SelfCareGoal.objects.filter(user=user, is_active=True).values_list('id', flat=True))

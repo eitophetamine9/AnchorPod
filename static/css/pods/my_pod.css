@@ -1,0 +1,667 @@
+/* ==========================================================================
+   AnchorPod - Dedicated "My Pod" Screen Styles
+   ========================================================================== */
+
+.my-pod-shell {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 48px 28px 84px;
+}
+
+/* --------------------------------------------------------------------------
+   Top Header & Breadcrumb
+   -------------------------------------------------------------------------- */
+.pod-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.pod-header-titles {
+  max-width: 680px;
+}
+
+.pod-breadcrumb {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.pod-breadcrumb a {
+  color: var(--coral-deep);
+  font-weight: 700;
+}
+
+.pod-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pod-main-title {
+  font: 400 clamp(36px, 4.5vw, 54px)/1.05 Georgia, serif;
+  margin: 0;
+  color: var(--ink);
+}
+
+.pod-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sage);
+  color: var(--teal);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.pod-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #499b5a;
+}
+
+.pod-header-subtitle {
+  font-size: 15px;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.pod-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.pod-btn-secondary {
+  padding: 11px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.pod-btn-secondary:hover {
+  background: var(--sage);
+  border-color: #b8c8bb;
+}
+
+/* --------------------------------------------------------------------------
+   Quick Metric Tiles
+   -------------------------------------------------------------------------- */
+.pod-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 36px;
+}
+
+.pod-metric-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  padding: 24px 20px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pod-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.metric-card-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.metric-card-value {
+  font: 400 32px/1 Georgia, serif;
+  color: var(--ink);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.metric-card-value small {
+  font-size: 13px;
+  color: var(--muted);
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+.metric-card-subtext {
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mini-progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* --------------------------------------------------------------------------
+   7-Day Collective Momentum Tracker
+   -------------------------------------------------------------------------- */
+.momentum-tracker-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 28px;
+  margin-bottom: 36px;
+}
+
+.momentum-tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.momentum-tracker-header h3 {
+  font: 400 22px/1.2 Georgia, serif;
+  margin: 0;
+  color: var(--ink);
+}
+
+.momentum-days-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+}
+
+.momentum-day-box {
+  padding: 14px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.momentum-day-box.is-today {
+  border-color: var(--coral);
+  background: rgba(239, 131, 96, 0.08);
+  box-shadow: 0 0 0 1px var(--coral);
+}
+
+.momentum-day-box.is-perfect {
+  border-color: var(--teal);
+  background: rgba(40, 90, 88, 0.06);
+}
+
+.momentum-day-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.momentum-day-box.is-today .momentum-day-name {
+  color: var(--coral-deep);
+}
+
+.momentum-day-date {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.momentum-ratio-chip {
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.momentum-day-box.is-perfect .momentum-ratio-chip {
+  background: var(--teal);
+  color: #fff;
+  border-color: var(--teal);
+}
+
+.momentum-bar-mini {
+  height: 4px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.momentum-bar-fill {
+  height: 100%;
+  background: var(--coral);
+  border-radius: 999px;
+}
+
+.momentum-day-box.is-perfect .momentum-bar-fill {
+  background: var(--teal);
+}
+
+/* --------------------------------------------------------------------------
+   Pod Members Roster (5 Rich Cards)
+   -------------------------------------------------------------------------- */
+.members-roster-section {
+  margin-bottom: 42px;
+}
+
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.section-title-row h2 {
+  font: 400 28px/1.1 Georgia, serif;
+  margin: 0;
+  color: var(--ink);
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.member-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.member-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+}
+
+.member-card.is-self {
+  border-color: #ef836077;
+  background: linear-gradient(180deg, rgba(239, 131, 96, 0.03) 0%, var(--white) 100%);
+  box-shadow: 0 0 0 1px #ef836033;
+}
+
+.member-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.member-avatar-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 700 16px "Trebuchet MS", sans-serif;
+  color: #fff;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.member-avatar-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  background: #c2c9c2;
+}
+
+.avatar-online-dot.checked {
+  background: #48a05c;
+}
+
+.member-card-names {
+  flex-grow: 1;
+}
+
+.member-display-name {
+  font: 700 17px/1.2 "Trebuchet MS", sans-serif;
+  color: var(--ink);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.self-tag {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--coral);
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+}
+
+.member-role-line {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.member-role-badge {
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.member-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.member-status-chip.checked {
+  background: #e6f2e8;
+  color: #2b703b;
+}
+
+.member-status-chip.pending {
+  background: #fff0eb;
+  color: var(--coral-deep);
+}
+
+.member-bio {
+  font: italic 13px/1.45 Georgia, serif;
+  color: var(--muted);
+  margin-bottom: 16px;
+  min-height: 38px;
+}
+
+.member-habits-section {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  margin-bottom: 18px;
+}
+
+.member-habits-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.member-habits-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.habit-chip {
+  font-size: 11px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.member-card-footer {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.member-streak-badge {
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.member-streak-badge strong {
+  color: var(--ink);
+}
+
+.member-action-btn {
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-nudge {
+  background: var(--white);
+  border: 1px solid var(--coral);
+  color: var(--coral-deep);
+}
+
+.btn-nudge:hover {
+  background: var(--coral);
+  color: #fff;
+}
+
+.btn-profile {
+  background: var(--sage);
+  border: 1px solid #b8c8bb;
+  color: var(--teal);
+}
+
+.btn-profile:hover {
+  background: var(--teal);
+  color: #fff;
+  border-color: var(--teal);
+}
+
+/* --------------------------------------------------------------------------
+   Rhythm & Preference Card
+   -------------------------------------------------------------------------- */
+.pod-preference-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 28px;
+  margin-bottom: 36px;
+}
+
+.preference-card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.preference-card-heading h3 {
+  font: 400 22px/1.2 Georgia, serif;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+
+.preference-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) 160px;
+  gap: 18px;
+  align-items: flex-end;
+}
+
+.preference-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.preference-field select, .preference-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font: 13px "Trebuchet MS", sans-serif;
+  border-radius: 4px;
+}
+
+.preference-field select:focus, .preference-field input:focus {
+  outline: none;
+  border-color: var(--coral);
+}
+
+.preference-submit-btn {
+  width: 100%;
+  padding: 13px 18px;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  font: 700 12px "Trebuchet MS", sans-serif;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.preference-submit-btn:hover {
+  background: #1c4543;
+}
+
+/* --------------------------------------------------------------------------
+   Pod Solidarity Manifesto Card
+   -------------------------------------------------------------------------- */
+.pod-manifesto-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.manifesto-item h4 {
+  font: 400 17px/1.25 Georgia, serif;
+  margin: 0 0 8px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manifesto-mark {
+  color: var(--coral);
+  font-size: 16px;
+}
+
+.manifesto-item p {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .pod-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .momentum-days-strip {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .preference-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pod-manifesto-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .pod-header-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pod-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .momentum-days-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+}

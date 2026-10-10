@@ -86,22 +86,30 @@ def home_view(request):
     formation_date = pod.formation_date or today
     day_number = max((today - formation_date).days + 1, 1)
 
-    # Dynamic Consecutive Day Counter (Streak from real user DailyCheckIn records)
+    # Batch-fetch user's recent check-ins (last 60 days) in a single query
+    recent_checkin_dates = set(
+        DailyCheckIn.objects.filter(
+            user=request.user,
+            date__gte=today - timedelta(days=60),
+            date__lte=today
+        ).values_list('date', flat=True)
+    )
+
+    # Dynamic Consecutive Day Counter (in-memory lookup)
     if user_checked_in:
         streak = 1
         check_date = today - timedelta(days=1)
-        while DailyCheckIn.objects.filter(user=request.user, date=check_date).exists():
+        while check_date in recent_checkin_dates:
             streak += 1
             check_date -= timedelta(days=1)
     else:
-        # Check if user had an active streak through yesterday
         streak = 0
         check_date = today - timedelta(days=1)
-        while DailyCheckIn.objects.filter(user=request.user, date=check_date).exists():
+        while check_date in recent_checkin_dates:
             streak += 1
             check_date -= timedelta(days=1)
 
-    # Dynamic Week-at-a-Glance Tracker (Monday to Sunday)
+    # Dynamic Week-at-a-Glance Tracker (Monday to Sunday, in-memory lookup)
     start_of_week = today - timedelta(days=today.weekday())
     day_labels = ["M", "T", "W", "T", "F", "S", "S"]
     week_days = []
@@ -111,7 +119,7 @@ def home_view(request):
         is_past = (day_date < today)
         is_future = (day_date > today)
 
-        user_checked = DailyCheckIn.objects.filter(user=request.user, date=day_date).exists()
+        user_checked = (day_date in recent_checkin_dates)
 
         week_days.append({
             "label": day_labels[i],

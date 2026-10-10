@@ -48,3 +48,43 @@ class PodServicesTests(TestCase):
         checked_count, total, all_completed = update_pod_daily_status(pod)
         self.assertEqual(checked_count, 5)
         self.assertTrue(all_completed)
+
+
+class MyPodViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='podstudent@univ.edu',
+            password='TestPassword123!'
+        )
+
+    def test_anonymous_access_redirects_to_login(self):
+        from django.urls import reverse
+        response = self.client.get(reverse('pods:my_pod'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login:login'), response.url)
+
+    def test_authenticated_access_renders_my_pod(self):
+        from django.urls import reverse
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('pods:my_pod'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'pods/my_pod.html')
+        self.assertContains(response, 'The Five Anchors')
+        self.assertContains(response, 'Pod Journey')
+        self.assertContains(response, 'Collective Consistency')
+
+    def test_update_matching_preferences(self):
+        from django.urls import reverse
+        from apps.pods.models import PodMatchingPreference
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse('pods:preferences'), {
+            'preferred_time_slot': 'Morning',
+            'timezone': 'America/New_York',
+        })
+        self.assertRedirects(response, reverse('pods:my_pod'))
+
+        pref = PodMatchingPreference.objects.get(user=self.user)
+        self.assertEqual(pref.preferred_time_slot, 'Morning')
+        self.assertEqual(pref.timezone, 'America/New_York')
+

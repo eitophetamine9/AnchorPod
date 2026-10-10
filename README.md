@@ -46,11 +46,12 @@ AnchorPod/
 │   ├── login/login.html
 │   ├── register/register.html
 │   ├── home/home.html
+│   ├── pods/my_pod.html          # Dedicated 5-person micro-community hub & roster
 │   ├── profile/profile.html
 │   └── user_settings/settings.html
 ├── static/                       # Feature-partitioned static assets
-│   ├── css/ (site.css, landing/, login/, register/, home/, profile/, user_settings/)
-│   ├── js/  (login/, register/, home/, profile/, user_settings/)
+│   ├── css/ (site.css, landing/, login/, register/, home/, pods/, profile/, user_settings/)
+│   ├── js/  (login/, register/, home/, pods/, profile/, user_settings/)
 │   └── images/
 └── media/                        # User-uploaded content (auto-cropped avatars under media/profile/)
 ```
@@ -111,6 +112,14 @@ AnchorPod/
 * **Three-Step Daily Rhythm Guide**: Outlines the student lifecycle: anonymous schedule matching, one-tap daily attendance check-in, and pre-scripted peer encouragement.
 * **Interactive FAQ Accordion**: Addresses student concerns regarding data privacy, zero-chat harassment protection, and dormant pod reshuffling.
 * **Frictionless Session Routing**: Authenticated students are automatically routed to their active home dashboard, while prospective visitors can explore features and register within 60 seconds.
+
+### 10. Dedicated Micro-Pod Hub & Member Roster (`apps/pods`, `templates/pods`)
+* **Dedicated Pod Screen (`/pod/`, `/pods/`)**: Full-screen micro-community view showcasing the student's assigned 5-person pod, journey tenure, shared unbroken streak, and schedule cadence.
+* **Expanded Member Roster**: Displays all 5 pod peers with their anonymous pseudonyms, role badges (Pod Anchor / Member), tenure dates, check-in status pills, personal streaks, and public self-care commitment anchors.
+* **Direct Anonymous Nudge Dispatcher**: Native modal integration on individual peer cards allowing students to send pre-approved encouragement directly to specific peers who haven't checked in yet.
+* **Collective 7-Day Pod Momentum Strip**: Day-by-day accountability matrix visualizing check-in ratios (e.g. 5/5 full pod completion) across the past week with perfect completion star indicators.
+* **Study Rhythm & Schedule Alignment**: Direct preference form allowing students to update their target study window (Morning, Afternoon, Evening, Night Owl) and campus timezone (`pod_matching_preference`).
+* **Solidarity Manifesto**: In-screen reminders of the 3 core tenets: showing up for oneself first, zero harassment/toxicity guarantee, and automated dormant pod protection.
 
 ---
 

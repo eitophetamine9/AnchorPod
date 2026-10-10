@@ -21,7 +21,7 @@
 </head>
 <body class="{% block body_class %}{% endblock %}{% if user.is_authenticated and user.settings.dark_mode %} dark-theme{% endif %}">
   <header class="site-header">
-    <a class="brand" href="{% if user.is_authenticated %}{% url 'home:home' %}{% else %}{% url 'login:login' %}{% endif %}">
+    <a class="brand" href="{% url 'home:home' %}">
       <span class="brand-mark">A</span> AnchorPod
     </a>
     {% if user.is_authenticated %}

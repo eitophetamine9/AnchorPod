@@ -8,10 +8,18 @@ class HomeVerticalSliceTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='homestudent@univ.edu', password='TestPassword123!')
 
-    def test_anonymous_access_redirects_to_login(self):
+    def test_anonymous_access_renders_landing_page(self):
         response = self.client.get(reverse('home:home'))
-        self.assertEqual(response.status_code, 302)
-        self.assertIn(reverse('login:login'), response.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'landing/landing.html')
+        self.assertContains(response, 'Beat university burnout with')
+        self.assertContains(response, 'Join Your 5-Person Pod')
+
+    def test_direct_landing_page_url(self):
+        response = self.client.get(reverse('home:landing'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'landing/landing.html')
+        self.assertContains(response, 'Why <em>micro-pods</em> beat massive chat servers.')
 
     def test_authenticated_user_accesses_home(self):
         self.client.force_login(self.user)

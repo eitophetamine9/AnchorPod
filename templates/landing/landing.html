@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AnchorPod - Quiet Accountability & Micro-Communities for University Students{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/landing/landing.css' %}?v=1.0">
+{% endblock %}
+
+{% block body_class %}landing-page{% endblock %}
+
+{% block content %}
+<div class="landing-page-wrapper">
+
+  <!-- ========================================================================
+       HERO SECTION
+       ======================================================================== -->
+  <section class="landing-hero" id="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        Quiet Academic Momentum
+      </div>
+
+      <h1 class="hero-title">
+        Beat university burnout with <em>quiet, five-person</em> accountability.
+      </h1>
+
+      <p class="hero-subtitle">
+        AnchorPod pairs you with a private micro-pod of peers who study when you study. No toxic group chats, no networking anxiety &mdash; just one-click daily check-ins and anonymous, uplifting nudges.
+      </p>
+
+      <div class="hero-actions">
+        <a href="{% url 'register:register' %}" class="hero-primary-cta" id="hero-join-btn">
+          <span>Join Your 5-Person Pod</span>
+          <span class="arrow">&rarr;</span>
+        </a>
+        <a href="{% url 'login:login' %}" class="hero-secondary-cta" id="hero-login-btn">
+          Log In to Your Pod
+        </a>
+      </div>
+
+      <div class="hero-trust-list">
+        <div class="trust-item">
+          <span class="trust-icon">&#10003;</span>
+          <span>5 Students Per Pod</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon">&#10003;</span>
+          <span>Zero Free-Text Toxicity</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon">&#10003;</span>
+          <span>100% Anonymous & Private</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon">&#10003;</span>
+          <span>1-Tap Daily Rhythm</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Interactive Pod Mockup -->
+    <div class="hero-mockup-wrapper">
+      <div class="hero-mockup-card">
+        <div class="mockup-header">
+          <div class="mockup-pod-info">
+            <h4>
+              <span class="mockup-status-dot"></span>
+              North Star Pod
+            </h4>
+            <div class="mockup-meta">5 of 5 active members &bull; Week 2</div>
+          </div>
+          <div class="mockup-streak-pill">
+            <span>&#9733;</span> 14 Days Together
+          </div>
+        </div>
+
+        <div class="mockup-members">
+          <div class="mockup-member-row is-user">
+            <div class="mockup-avatar-group">
+              <div class="mockup-avatar" style="background: var(--coral);">AY</div>
+              <div>
+                <div class="mockup-member-name">Anchor Y (You)</div>
+                <div class="mockup-member-role">Night owl &bull; CS &amp; Math</div>
+              </div>
+            </div>
+            <div class="mockup-check-badge done">
+              <span>&#10003;</span> Checked In
+            </div>
+          </div>
+
+          <div class="mockup-member-row">
+            <div class="mockup-avatar-group">
+              <div class="mockup-avatar" style="background: #416b5e;">AM</div>
+              <div>
+                <div class="mockup-member-name">Anchor M</div>
+                <div class="mockup-member-role">Evening sprint &bull; Bio</div>
+              </div>
+            </div>
+            <div class="mockup-check-badge done">
+              <span>&#10003;</span> Checked In
+            </div>
+          </div>
+
+          <div class="mockup-member-row">
+            <div class="mockup-avatar-group">
+              <div class="mockup-avatar" style="background: #3e5a70;">AK</div>
+              <div>
+                <div class="mockup-member-name">Anchor K</div>
+                <div class="mockup-member-role">Afternoon focus &bull; History</div>
+              </div>
+            </div>
+            <div class="mockup-check-badge done">
+              <span>&#10003;</span> Checked In
+            </div>
+          </div>
+
+          <div class="mockup-member-row">
+            <div class="mockup-avatar-group">
+              <div class="mockup-avatar" style="background: #7d5982;">AR</div>
+              <div>
+                <div class="mockup-member-name">Anchor R</div>
+                <div class="mockup-member-role">Flexible &bull; Engineering</div>
+              </div>
+            </div>
+            <div class="mockup-check-badge done">
+              <span>&#10003;</span> Checked In
+            </div>
+          </div>
+
+          <div class="mockup-member-row">
+            <div class="mockup-avatar-group">
+              <div class="mockup-avatar" style="background: #6e7370;">AL</div>
+              <div>
+                <div class="mockup-member-name">Anchor L</div>
+                <div class="mockup-member-role">Morning sprint &bull; Econ</div>
+              </div>
+            </div>
+            <div class="mockup-check-badge active-now" id="mockup-al-badge">
+              <span>&bull;</span> Studying Now
+            </div>
+          </div>
+        </div>
+
+        <div class="mockup-interactive-zone">
+          <div class="mockup-zone-title">
+            <span>Try the Encouragement Nudge</span>
+            <small style="color: var(--teal); font-weight: 600;">Safe &bull; Pre-scripted</small>
+          </div>
+          <button type="button" class="mockup-demo-nudge-btn" id="demo-nudge-btn">
+            <span>&#9829;</span> Send "You've got this" to Anchor L
+          </button>
+        </div>
+      </div>
+
+      <!-- Floating Animated Encouragement Toast -->
+      <div class="mockup-floating-toast" id="demo-nudge-toast">
+        <div class="toast-tag">Anonymous Nudge Received</div>
+        <div class="toast-quote">"Proud of your progress today. Keep taking it one step at a time!"</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       WHY MICRO-PODS? (PROBLEM VS SOLUTION)
+       ======================================================================== -->
+  <section class="comparison-section" id="why-pods">
+    <div class="section-container">
+      <div class="section-eyebrow">The Research-Backed Difference</div>
+      <h2 class="section-heading">Why <em>micro-pods</em> beat massive chat servers.</h2>
+      <p class="section-lead">
+        University group chats either drown in 500 unread memes or fall completely silent by midterm season. AnchorPod was deliberately engineered to eliminate social friction.
+      </p>
+
+      <div class="comparison-grid">
+        <div class="comparison-card negative">
+          <span class="card-badge">Discord &amp; WhatsApp Study Groups</span>
+          <h3>The Noise &amp; Burnout Trap</h3>
+          <ul class="comparison-list">
+            <li>
+              <span class="cross-icon">&#10005;</span>
+              <span>Hundreds of members leading to the bystander effect &mdash; nobody actually feels accountable.</span>
+            </li>
+            <li>
+              <span class="cross-icon">&#10005;</span>
+              <span>Constant notifications, FOMO, and meme doom-scrolling when you need to concentrate.</span>
+            </li>
+            <li>
+              <span class="cross-icon">&#10005;</span>
+              <span>Performative "grindset" culture and social comparison that amplifies imposter syndrome.</span>
+            </li>
+            <li>
+              <span class="cross-icon">&#10005;</span>
+              <span>High risk of awkward silence, unsolicited DMs, or toxic commentary.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="comparison-card positive">
+          <span class="card-badge">The AnchorPod Pod Engine</span>
+          <h3>Quiet, Intentional Support</h3>
+          <ul class="comparison-list">
+            <li>
+              <span class="check-icon">&#10003;</span>
+              <span>Exactly 5 students matched by rhythm &mdash; small enough that every single check-in matters.</span>
+            </li>
+            <li>
+              <span class="check-icon">&#10003;</span>
+              <span>Zero free-form text chat &mdash; no doom-scrolling, no spam, and zero cyberbullying possible.</span>
+            </li>
+            <li>
+              <span class="check-icon">&#10003;</span>
+              <span>One-tap check-in turns your pod dot green and keeps your shared pod streak alive.</span>
+            </li>
+            <li>
+              <span class="check-icon">&#10003;</span>
+              <span>Pre-approved uplifting nudges let you send warmth without social pressure or awkward replies.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       HOW IT WORKS (THREE-STEP RHYTHM)
+       ======================================================================== -->
+  <section class="how-it-works-section" id="how-it-works">
+    <div class="section-container">
+      <div class="section-eyebrow">Effortless Routine</div>
+      <h2 class="section-heading">How your <em>daily rhythm</em> works.</h2>
+      <p class="section-lead">
+        Designed for university students with packed syllabi. You don't need another app that demands hours of your attention.
+      </p>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <span class="step-number">01</span>
+          <h3>Get Matched Anonymously</h3>
+          <p>
+            Choose your target study cadence (morning sprint, afternoon block, or evening deep-work) and your self-care habits. We place you into a curated 5-student pod under a protective alias.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <span class="step-number">02</span>
+          <h3>Check In With One Tap</h3>
+          <p>
+            When you sit down to study or complete a self-care goal, hit check-in. Your pod ring lights up, signaling to your peers that you showed up for yourself today.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <span class="step-number">03</span>
+          <h3>Nudge With Kindness</h3>
+          <p>
+            If a podmate hasn't checked in before a major exam week, send an anonymous positive nudge with a single click. No free-text stress &mdash; pure solidarity.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       CORE PILLARS / FEATURES
+       ======================================================================== -->
+  <section class="features-section" id="features">
+    <div class="section-container">
+      <div class="section-eyebrow">Engineered For Focus</div>
+      <h2 class="section-heading">Built specifically for <em>student well-being</em>.</h2>
+
+      <div class="features-grid">
+        <div class="feature-box">
+          <div>
+            <div class="feature-icon-mark">&#9678;</div>
+            <h3>The 5-Person Sweet Spot</h3>
+            <p>
+              Sociological research reveals that accountability groups larger than 6 lose mutual responsibility, while groups under 4 create excessive pressure. Five is the exact number where presence counts and solidarity thrives.
+            </p>
+          </div>
+          <div class="feature-highlight-chip">Zero Social Loafing</div>
+        </div>
+
+        <div class="feature-box">
+          <div>
+            <div class="feature-icon-mark">&#9825;</div>
+            <h3>Self-Care &amp; Habit Integration</h3>
+            <p>
+              Academic success cannot exist without wellness. Track essential daily self-care anchors alongside your studies &mdash; like drinking water, stepping outside for fresh air, and taking mindful breathers.
+            </p>
+          </div>
+          <div class="feature-highlight-chip">Holistic Health</div>
+        </div>
+
+        <div class="feature-box">
+          <div>
+            <div class="feature-icon-mark">&#9733;</div>
+            <h3>Dynamic Streak Engine</h3>
+            <p>
+              Watch your personal consistency grow day by day with real check-in tracking. See your week-at-a-glance calendar light up as you build lasting academic resilience.
+            </p>
+          </div>
+          <div class="feature-highlight-chip">Unbroken Momentum</div>
+        </div>
+
+        <div class="feature-box">
+          <div>
+            <div class="feature-icon-mark">&#8645;</div>
+            <h3>Smart Pod Rebalancing</h3>
+            <p>
+              Never get stranded in an abandoned group. AnchorPod monitors active check-in patterns. If a pod member becomes inactive, the system seamlessly reshuffles active students into thriving pods.
+            </p>
+          </div>
+          <div class="feature-highlight-chip">Always Active</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       STUDENT VOICES / STORIES
+       ======================================================================== -->
+  <section class="stories-section" id="student-stories">
+    <div class="section-container">
+      <div class="section-eyebrow">Student Testimonials</div>
+      <h2 class="section-heading">What students say about <em>AnchorPod</em>.</h2>
+
+      <div class="stories-grid">
+        <div class="story-card">
+          <p class="story-quote">
+            "I used to sit in the library at 11 PM feeling utterly isolated while studying for organic chemistry. Having 4 podmates quietly checking in alongside me turned study dread into a calming ritual."
+          </p>
+          <div class="story-author">
+            <div class="story-avatar-initial">SA</div>
+            <div class="story-meta">
+              <h5>Pre-Med Sophomore</h5>
+              <small>UCLA &bull; 21-Day Streak</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-card">
+          <p class="story-quote">
+            "Normal Discord study servers gave me constant notification anxiety. On AnchorPod, there is literally no chat to stress over. You just check in, see your pod's ring fill up, and get to work."
+          </p>
+          <div class="story-author">
+            <div class="story-avatar-initial" style="background: var(--coral);">JL</div>
+            <div class="story-meta">
+              <h5>Computer Science Senior</h5>
+              <small>Georgia Tech &bull; 34-Day Streak</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-card">
+          <p class="story-quote">
+            "The anonymous nudges are so sweet. During midterms week I opened the app to see a nudge saying 'Proud of your progress today.' It felt genuine and didn't expect a reply back."
+          </p>
+          <div class="story-author">
+            <div class="story-avatar-initial" style="background: #7d5982;">EM</div>
+            <div class="story-meta">
+              <h5>Psychology Junior</h5>
+              <small>UW Seattle &bull; 19-Day Streak</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       FAQ ACCORDION
+       ======================================================================== -->
+  <section class="faq-section" id="faq">
+    <div class="section-container">
+      <div class="section-eyebrow">Answers to Common Questions</div>
+      <h2 class="section-heading">Frequently asked <em>questions</em>.</h2>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button type="button" class="faq-question">
+            <span>Is AnchorPod completely free for university students?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Yes. AnchorPod is 100% free for students. Our goal is to combat university burnout and academic isolation through quiet, community-driven micro-accountability.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question">
+            <span>Can other pod members see my real name or grades?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Never. AnchorPod is designed with strict privacy. Your podmates only see your chosen gentle nickname or alias (such as "Anchor A"), your personalized avatar color, and your check-in status. Your personal email and grades are completely private.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question">
+            <span>Why is there no free-text messaging?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Free-text group chats inevitably introduce notification overload, awkward small talk, and social comparison. AnchorPod replaces text chats with pre-scripted, positive nudges ("You've got this!", "Remember to hydrate!"). This ensures a safe, zero-toxicity sanctuary focused purely on focus and kindness.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question">
+            <span>What happens if my podmates stop checking in?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            AnchorPod features automated pod rebalancing. If members become dormant, the system detects this and smoothly reshuffles active students into full, active pods so your momentum never dies.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question">
+            <span>How much time does AnchorPod take each day?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Under 30 seconds. You open the app, tap Check In, review your habit list, and optionally send a quick nudge. It is built to support your study sessions, not steal your time.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       BOTTOM CTA BANNER
+       ======================================================================== -->
+  <section class="cta-banner-section" id="join-now">
+    <div class="cta-banner-container">
+      <h2 class="cta-banner-title">
+        Ready to find your <em>quiet study rhythm</em>?
+      </h2>
+      <p class="cta-banner-subtitle">
+        Join hundreds of university students building consistency, beating isolation, and staying grounded this semester.
+      </p>
+      <a href="{% url 'register:register' %}" class="cta-banner-btn" id="footer-cta-btn">
+        <span>Claim Your Spot in a Pod</span>
+        <span class="arrow">&rarr;</span>
+      </a>
+      <div class="cta-banner-caption">
+        Free for all university students &bull; Set up in under 60 seconds
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // FAQ Accordion functionality
+  document.querySelectorAll('.faq-question').forEach(function(button) {
+    button.addEventListener('click', function() {
+      var item = this.parentElement;
+      var isOpen = item.classList.contains('open');
+
+      document.querySelectorAll('.faq-item').forEach(function(otherItem) {
+        otherItem.classList.remove('open');
+      });
+
+      if (!isOpen) {
+        item.classList.add('open');
+      }
+    });
+  });
+
+  // Interactive Demo Nudge Trigger in Hero Mockup
+  var demoNudgeBtn = document.getElementById('demo-nudge-btn');
+  var demoToast = document.getElementById('demo-nudge-toast');
+  var mockupAlBadge = document.getElementById('mockup-al-badge');
+
+  if (demoNudgeBtn && demoToast) {
+    demoNudgeBtn.addEventListener('click', function() {
+      // Temporarily highlight badge
+      if (mockupAlBadge) {
+        mockupAlBadge.innerHTML = '<span>&#10003;</span> Nudge Sent!';
+        mockupAlBadge.className = 'mockup-check-badge done';
+      }
+
+      // Animate toast
+      demoToast.style.transform = 'translateY(-12px) scale(1.05) rotate(0deg)';
+      demoToast.style.borderColor = 'var(--teal)';
+      demoToast.querySelector('.toast-tag').textContent = 'Nudge Delivered!';
+      demoToast.querySelector('.toast-quote').textContent = '"Anchor Y sent encouragement to Anchor L &bull; You\'ve got this!"';
+
+      demoNudgeBtn.textContent = 'Encouragement Delivered!';
+      demoNudgeBtn.style.background = 'var(--sage)';
+      demoNudgeBtn.style.borderColor = 'var(--teal)';
+      demoNudgeBtn.style.color = 'var(--teal)';
+
+      setTimeout(function() {
+        demoNudgeBtn.innerHTML = '<span>&#9829;</span> Send "Keep going" to Anchor L';
+        demoNudgeBtn.style.background = '';
+        demoNudgeBtn.style.borderColor = '';
+        demoNudgeBtn.style.color = '';
+      }, 3500);
+    });
+  }
+</script>
+{% endblock %}

@@ -42,13 +42,14 @@ AnchorPod/
 │   └── nudges/                   # Pre-approved positive encouragement messaging
 ├── templates/                    # HTML partitioned strictly by feature
 │   ├── base.html                 # Shared layout, header navigation, mini-avatar, theme script
+│   ├── landing/landing.html      # Public prospective student discovery & micro-pod overview
 │   ├── login/login.html
 │   ├── register/register.html
 │   ├── home/home.html
 │   ├── profile/profile.html
 │   └── user_settings/settings.html
 ├── static/                       # Feature-partitioned static assets
-│   ├── css/ (site.css, login/, register/, home/, profile/, user_settings/)
+│   ├── css/ (site.css, landing/, login/, register/, home/, profile/, user_settings/)
 │   ├── js/  (login/, register/, home/, profile/, user_settings/)
 │   └── images/
 └── media/                        # User-uploaded content (auto-cropped avatars under media/profile/)
@@ -101,7 +102,15 @@ AnchorPod/
 ### 8. Supabase PostgreSQL Cloud Integration & Testing
 * Connected to hosted **Supabase PostgreSQL** via AWS Tokyo Session Pooler with SSL encryption.
 * All **14 physical ERD tables** migrated and live in the public schema.
-* Comprehensive automated test suite with **34 passing unit tests** across all vertical slices.
+* Comprehensive automated test suite with passing unit tests across all vertical slices.
+
+### 9. Public Landing Page & Student Discovery (`apps/home`, `templates/landing`)
+* **Dedicated Public Landing Experience**: Unauthenticated requests to `/` or `/landing/` render a dedicated landing page designed specifically for university students suffering from academic burnout and isolation.
+* **Interactive Hero Pod Mockup**: Live dashboard preview displaying five synchronized student avatars, active study badges, shared streak progress, and an interactive sample nudge trigger.
+* **Research-Backed Value Proposition**: Contrasts the bystander effect, notification fatigue, and toxicity of massive campus Discord and WhatsApp servers with AnchorPod's quiet 5-person micro-community model.
+* **Three-Step Daily Rhythm Guide**: Outlines the student lifecycle: anonymous schedule matching, one-tap daily attendance check-in, and pre-scripted peer encouragement.
+* **Interactive FAQ Accordion**: Addresses student concerns regarding data privacy, zero-chat harassment protection, and dormant pod reshuffling.
+* **Frictionless Session Routing**: Authenticated students are automatically routed to their active home dashboard, while prospective visitors can explore features and register within 60 seconds.
 
 ---
 

@@ -10,8 +10,17 @@ from apps.profile.models import Profile
 from .models import DailyCheckIn
 
 
-@login_required
+def landing_view(request):
+    """
+    Public landing page for prospective students showcasing AnchorPod's
+    five-person micro-community and quiet accountability system.
+    """
+    return render(request, "landing/landing.html")
+
+
 def home_view(request):
+    if not request.user.is_authenticated:
+        return landing_view(request)
     profile, _ = Profile.objects.get_or_create(
         user=request.user,
         defaults={

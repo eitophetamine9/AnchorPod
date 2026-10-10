@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import date, timedelta
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,12 +12,12 @@ from .models import PodMembership, PodStreak, PodDailySummary, PodMatchingPrefer
 from .services import get_or_create_user_pod, update_pod_daily_status
 
 
-def calculate_user_streak(user, today):
-    """Calculates the consecutive daily check-in streak for a user."""
-    user_checked_in = DailyCheckIn.objects.filter(user=user, date=today).exists()
+def calculate_user_streak(user_dates, today):
+    """Calculates the consecutive daily check-in streak from a set of dates in memory."""
+    user_checked_in = (today in user_dates)
     check_date = today if user_checked_in else (today - timedelta(days=1))
     streak = 0
-    while DailyCheckIn.objects.filter(user=user, date=check_date).exists():
+    while check_date in user_dates:
         streak += 1
         check_date -= timedelta(days=1)
     return streak, user_checked_in
@@ -46,13 +47,39 @@ def my_pod_view(request):
     )
 
     member_users = [m.user for m in memberships]
-    checked_in_user_ids = set(
-        DailyCheckIn.objects.filter(user__in=member_users, date=today).values_list('user_id', flat=True)
-    )
+    member_user_ids = [u.id for u in member_users]
 
+    # Batch 1: Fetch recent check-ins for all pod members (last 60 days)
+    recent_checkins = list(
+        DailyCheckIn.objects.filter(
+            user__in=member_users,
+            date__gte=today - timedelta(days=60),
+            date__lte=today
+        ).values_list('user_id', 'date')
+    )
+    user_checkins_map = defaultdict(set)
+    date_checkin_counts = defaultdict(int)
+    for u_id, c_date in recent_checkins:
+        user_checkins_map[u_id].add(c_date)
+        if today - timedelta(days=6) <= c_date <= today:
+            date_checkin_counts[c_date] += 1
+
+    # Today's checked in user IDs
+    checked_in_user_ids = {u_id for u_id, c_date in recent_checkins if c_date == today}
     total_members = len(memberships) or 5
     checked_in_count = len(checked_in_user_ids)
     progress_pct = int((checked_in_count / total_members) * 100) if total_members else 0
+
+    # Batch 2: Fetch all active habits for all pod members in a single query
+    all_goals = list(
+        SelfCareGoal.objects.filter(
+            user__in=member_users,
+            is_active=True
+        ).values('user_id', 'title')
+    )
+    user_goals_map = defaultdict(list)
+    for g in all_goals:
+        user_goals_map[g['user_id']].append(g['title'])
 
     # Detailed member roster
     pod_members = []
@@ -66,13 +93,11 @@ def my_pod_view(request):
             )
 
         is_self = (member_user.id == request.user.id)
-        is_checked = member_user.id in checked_in_user_ids
-        streak, _ = calculate_user_streak(member_user, today)
+        is_checked = (member_user.id in checked_in_user_ids)
+        streak, _ = calculate_user_streak(user_checkins_map[member_user.id], today)
 
-        # Retrieve member goals
-        db_goals = list(
-            SelfCareGoal.objects.filter(user=member_user, is_active=True).values_list('title', flat=True)
-        )
+        # Retrieve member goals from in-memory batch
+        db_goals = user_goals_map.get(member_user.id, [])
         if not db_goals:
             db_goals = member_profile.goals if isinstance(member_profile.goals, list) else ['Study sprint', 'Hydrate']
 
@@ -109,12 +134,12 @@ def my_pod_view(request):
         defaults={'current_streak': 0, 'longest_streak': 0}
     )
 
-    # 7-Day Pod Momentum History
+    # 7-Day Pod Momentum History (Computed in-memory)
     momentum_history = []
     day_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     for i in range(6, -1, -1):
         hist_date = today - timedelta(days=i)
-        hist_checked = DailyCheckIn.objects.filter(user__in=member_users, date=hist_date).count()
+        hist_checked = date_checkin_counts[hist_date]
         hist_all_completed = (hist_checked == total_members and total_members > 0)
         hist_pct = int((hist_checked / total_members) * 100) if total_members else 0
 

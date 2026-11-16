@@ -119,6 +119,78 @@ def get_or_create_user_pod(user):
     return open_pod
 
 
+def match_or_reallocate_student(user, preferred_time_slot="Evening", timezone="Asia/Manila"):
+    """
+    Matches or reallocates the student to an active/forming pod sharing their preferred time slot.
+    Updates PodMatchingPreference and creates or transfers membership with audit logging.
+    """
+    from django.utils import timezone as django_tz
+    from .models import PodMatchingPreference, PodReshuffleLog
+
+    pref, _ = PodMatchingPreference.objects.get_or_create(user=user)
+    pref.preferred_time_slot = preferred_time_slot
+    pref.timezone = timezone
+    pref.is_seeking_pod = False
+    pref.save()
+
+    with transaction.atomic():
+        # Check current active membership
+        current_membership = (
+            PodMembership.objects.filter(user=user, status='active')
+            .select_related('pod')
+            .first()
+        )
+        if current_membership and current_membership.pod.time_slot == preferred_time_slot:
+            return current_membership.pod
+
+        # Look for open pod with same time_slot
+        matching_pod = (
+            Pod.objects.filter(status__in=['forming', 'active'], time_slot=preferred_time_slot)
+            .exclude(id=current_membership.pod_id if current_membership else 0)
+            .annotate(active_count=Count('memberships', filter=Q(memberships__status='active')))
+            .filter(active_count__lt=5)
+            .first()
+        )
+
+        if not matching_pod:
+            # Create a pod matching the rhythm
+            existing_count = Pod.objects.count()
+            name_idx = existing_count % len(POD_NAMES)
+            base_name = POD_NAMES[name_idx]
+            suffix = f" {existing_count // len(POD_NAMES) + 1}" if existing_count >= len(POD_NAMES) else ""
+            matching_pod = Pod.objects.create(
+                name=f"{base_name}{suffix} ({preferred_time_slot})",
+                time_slot=preferred_time_slot,
+                max_capacity=5,
+                status='active',
+                formation_date=date.today(),
+            )
+            PodStreak.objects.get_or_create(pod=matching_pod, defaults={'current_streak': 0, 'longest_streak': 0})
+
+        if current_membership:
+            # Record reshuffle transition
+            current_membership.status = 'reassigned'
+            current_membership.left_at = django_tz.now()
+            current_membership.save()
+            PodReshuffleLog.objects.create(
+                user=user,
+                old_pod=current_membership.pod,
+                new_pod=matching_pod,
+                reason=f"Schedule match to {preferred_time_slot}"
+            )
+
+        # Create or activate new membership
+        PodMembership.objects.create(
+            user=user,
+            pod=matching_pod,
+            role='member',
+            status='active'
+        )
+        ensure_pod_peers(matching_pod, user)
+
+    return matching_pod
+
+
 def ensure_pod_peers(pod, current_user):
     """
     Fills empty slots in a pod with simulated student peers so solo

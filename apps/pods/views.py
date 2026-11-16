@@ -9,7 +9,7 @@ from apps.nudges.services import ensure_default_templates
 from apps.profile.models import Profile
 from apps.goals.models import SelfCareGoal
 from .models import PodMembership, PodStreak, PodDailySummary, PodMatchingPreference
-from .services import get_or_create_user_pod, update_pod_daily_status
+from .services import get_or_create_user_pod, update_pod_daily_status, match_or_reallocate_student
 
 
 def calculate_user_streak(user_dates, today):
@@ -197,3 +197,61 @@ def update_matching_preferences_view(request):
 
     messages.success(request, f"Your study rhythm has been set to {time_slot} ({preference.timezone}).")
     return redirect("pods:my_pod")
+
+
+@login_required
+def pod_matching_view(request):
+    """
+    Interactive pod matching onboarding view where students configure
+    their study rhythm, select primary wellness anchors, and get paired
+    with a 5-student pod aligned with their schedule.
+    """
+    preference, _ = PodMatchingPreference.objects.get_or_create(
+        user=request.user,
+        defaults={'preferred_time_slot': 'Evening', 'timezone': 'Asia/Manila'}
+    )
+
+    current_membership = PodMembership.objects.filter(user=request.user, status='active').select_related('pod').first()
+    current_pod = current_membership.pod if current_membership else None
+
+    if request.method == "POST":
+        time_slot = request.POST.get("preferred_time_slot", "Evening").strip()
+        timezone = request.POST.get("timezone", "Asia/Manila").strip()
+        selected_goals = request.POST.getlist("goals")
+
+        valid_slots = ["Morning", "Afternoon", "Evening", "Night"]
+        if time_slot not in valid_slots:
+            time_slot = "Evening"
+
+        # Update profile goals
+        if selected_goals:
+            profile, _ = Profile.objects.get_or_create(user=request.user)
+            profile.goals = selected_goals
+            profile.save()
+
+            for idx, g_title in enumerate(selected_goals, start=1):
+                SelfCareGoal.objects.get_or_create(
+                    user=request.user,
+                    title=g_title,
+                    defaults={'category': 'wellness', 'sort_order': idx, 'is_active': True}
+                )
+
+        matched_pod = match_or_reallocate_student(request.user, time_slot, timezone)
+        messages.success(request, f"Welcome to {matched_pod.name}! Matched with peers for your {time_slot} rhythm.")
+        return redirect("pods:my_pod")
+
+    # Suggested wellness anchors for quick onboarding selection
+    suggested_habits = [
+        {"title": "Drink a glass of water upon waking", "category": "physical"},
+        {"title": "Step outside for 10 minutes of daylight", "category": "mindfulness"},
+        {"title": "Study in a focused 25-minute Pomodoro block", "category": "academic"},
+        {"title": "Unplug from screens 30 minutes before sleep", "category": "wellness"},
+        {"title": "Write down 3 small wins before bed", "category": "mindfulness"},
+    ]
+
+    return render(request, "pods/matching.html", {
+        "preference": preference,
+        "current_pod": current_pod,
+        "suggested_habits": suggested_habits,
+    })
+

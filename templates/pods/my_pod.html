@@ -32,6 +32,9 @@
     </div>
 
     <div class="pod-header-actions">
+      <a href="{% url 'pods:match' %}" class="pod-btn-secondary" style="border-color: var(--coral); color: var(--coral-deep);">
+        <span>&#9832;</span> Matching Engine &rarr;
+      </a>
       <a href="{% url 'home:home' %}" class="pod-btn-secondary">
         <span>&larr;</span> Back to Home
       </a>
@@ -203,6 +206,7 @@
         <h3>Your Study Rhythm Preferences</h3>
         <p style="font-size: 13px; color: var(--muted); margin: 0;">
           AnchorPod synchronizes you with students active during the same study window to maximize quiet solidarity.
+          <a href="{% url 'pods:match' %}" style="color: var(--coral-deep); font-weight: 700; text-decoration: underline; margin-left: 6px;">Launch Guided Matching &rarr;</a>
         </p>
       </div>
       <span class="date-chip">Auto-Matched</span>

@@ -88,3 +88,40 @@ class MyPodViewTests(TestCase):
         self.assertEqual(pref.preferred_time_slot, 'Morning')
         self.assertEqual(pref.timezone, 'America/New_York')
 
+    def test_pod_matching_anonymous_redirects_to_login(self):
+        from django.urls import reverse
+        response = self.client.get(reverse('pods:match'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login:login'), response.url)
+
+    def test_pod_matching_get_renders_template(self):
+        from django.urls import reverse
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('pods:match'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'pods/matching.html')
+        self.assertContains(response, 'Find your <em>quiet study rhythm</em>')
+        self.assertContains(response, 'Choose your study window')
+
+    def test_pod_matching_post_allocates_pod_and_updates_preferences(self):
+        from django.urls import reverse
+        from apps.pods.models import PodMatchingPreference, PodMembership
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse('pods:match'), {
+            'preferred_time_slot': 'Night',
+            'timezone': 'Asia/Manila',
+            'goals': ['Drink water', 'Study 25 mins'],
+            'pledge_accepted': 'on',
+        })
+        self.assertRedirects(response, reverse('pods:my_pod'))
+
+        pref = PodMatchingPreference.objects.get(user=self.user)
+        self.assertEqual(pref.preferred_time_slot, 'Night')
+        self.assertEqual(pref.timezone, 'Asia/Manila')
+
+        active_membership = PodMembership.objects.filter(user=self.user, status='active').first()
+        self.assertIsNotNone(active_membership)
+        self.assertEqual(active_membership.pod.time_slot, 'Night')
+
+

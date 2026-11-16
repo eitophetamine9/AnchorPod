@@ -1,0 +1,348 @@
+/* ==========================================================================
+   AnchorPod - Pod Matchmaking Onboarding Styles
+   ========================================================================== */
+
+.matching-shell {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 24px 84px;
+}
+
+.matching-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.matching-header h1 {
+  font: 400 clamp(36px, 4.5vw, 54px)/1.08 Georgia, serif;
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+
+.matching-header h1 em {
+  color: var(--coral-deep);
+  font-style: italic;
+}
+
+.matching-header p {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.matching-form-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: clamp(24px, 4vw, 42px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.03);
+}
+
+.matching-step-section {
+  margin-bottom: 38px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+
+.matching-step-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 24px;
+  padding-bottom: 0;
+}
+
+.step-label-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.step-number-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font: 700 12px "Trebuchet MS", sans-serif;
+}
+
+.step-title {
+  margin: 0;
+  font: 600 18px "Trebuchet MS", sans-serif;
+  color: var(--ink);
+}
+
+.step-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  margin: -8px 0 16px 40px;
+}
+
+/* Rhythm Option Grid */
+.rhythm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.rhythm-card-label {
+  display: block;
+  cursor: pointer;
+  position: relative;
+}
+
+.rhythm-card-label input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+}
+
+.rhythm-card {
+  border: 1.5px solid var(--line);
+  background: var(--paper);
+  border-radius: 8px;
+  padding: 18px 20px;
+  transition: all 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.rhythm-card:hover {
+  border-color: #b9c9bd;
+  background: var(--white);
+}
+
+.rhythm-card-label input[type="radio"]:checked + .rhythm-card {
+  border-color: var(--coral);
+  background: var(--white);
+  box-shadow: 0 0 0 1px var(--coral), 0 8px 20px rgba(239, 131, 96, 0.12);
+}
+
+.rhythm-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.rhythm-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.rhythm-time-chip {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--sage);
+  color: var(--teal);
+}
+
+.rhythm-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Habits Pills */
+.habits-select-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.habit-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.habit-checkbox-label:hover {
+  border-color: #bcc9bd;
+  background: var(--white);
+}
+
+.habit-checkbox-label input[type="checkbox"]:checked ~ .habit-text {
+  font-weight: 600;
+  color: var(--teal);
+}
+
+.habit-text {
+  font-size: 13px;
+  color: var(--ink);
+  flex-grow: 1;
+}
+
+.habit-category-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+/* Timezone Input */
+.timezone-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.timezone-input {
+  flex-grow: 1;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font: 13px "Trebuchet MS", sans-serif;
+  border-radius: 4px;
+}
+
+.timezone-input:focus {
+  outline: none;
+  border-color: var(--coral);
+}
+
+/* Quiet Pledge Box */
+.pledge-card {
+  background: #fbf7f4;
+  border: 1px dashed var(--coral);
+  border-radius: 8px;
+  padding: 20px 22px;
+  margin-top: 10px;
+}
+
+.pledge-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.pledge-row input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--coral);
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+}
+
+.pledge-text {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.pledge-text strong {
+  color: var(--coral-deep);
+}
+
+/* Submit Section */
+.matching-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.matching-submit-btn {
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  padding: 16px 32px;
+  font: 700 14px "Trebuchet MS", sans-serif;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 24px rgba(40, 90, 88, 0.2);
+}
+
+.matching-submit-btn:hover {
+  background: #1c4543;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(40, 90, 88, 0.3);
+}
+
+.matching-back-link {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+.matching-back-link:hover {
+  color: var(--ink);
+}
+
+/* Matching Overlay */
+.matching-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 24, 24, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  place-items: center;
+  color: #fff;
+  text-align: center;
+}
+
+.matching-overlay.active {
+  display: grid;
+}
+
+.matching-overlay-card {
+  background: #1a2525;
+  border: 1px solid #2f4544;
+  padding: 42px 36px;
+  border-radius: 12px;
+  max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.matching-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(239, 131, 96, 0.2);
+  border-top-color: var(--coral);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 700px) {
+  .rhythm-grid {
+    grid-template-columns: 1fr;
+  }
+  .matching-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .matching-submit-btn {
+    justify-content: center;
+  }
+}

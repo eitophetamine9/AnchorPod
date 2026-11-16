@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Find Your 5-Person Pod | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pods/matching.css' %}?v=1.0">
+{% endblock %}
+
+{% block content %}
+<div class="matching-shell">
+  
+  <header class="matching-header">
+    <p class="eyebrow" style="margin-bottom: 8px;">Pod Matching Engine</p>
+    <h1>Find your <em>quiet study rhythm</em>.</h1>
+    <p>
+      AnchorPod matches you with four peers who study in the same time window. No high-pressure groups, no unread chat bubbles &mdash; just shared presence.
+    </p>
+  </header>
+
+  <div class="matching-form-card">
+    <form method="post" action="{% url 'pods:match' %}" id="matching-form">
+      {% csrf_token %}
+
+      <!-- Step 1: Study Rhythm Window -->
+      <section class="matching-step-section">
+        <div class="step-label-row">
+          <span class="step-number-badge">1</span>
+          <h2 class="step-title">Choose your study window</h2>
+        </div>
+        <p class="step-subtitle">When do you do your most focused coursework or revision?</p>
+
+        <div class="rhythm-grid">
+          <label class="rhythm-card-label">
+            <input type="radio" name="preferred_time_slot" value="Morning" {% if preference.preferred_time_slot == "Morning" %}checked{% endif %}>
+            <div class="rhythm-card">
+              <div class="rhythm-title-row">
+                <span class="rhythm-name">Morning Sprint</span>
+                <span class="rhythm-time-chip">6 AM &ndash; 12 PM</span>
+              </div>
+              <p class="rhythm-desc">Early risers starting the day with calm focus before classes begin.</p>
+            </div>
+          </label>
+
+          <label class="rhythm-card-label">
+            <input type="radio" name="preferred_time_slot" value="Afternoon" {% if preference.preferred_time_slot == "Afternoon" %}checked{% endif %}>
+            <div class="rhythm-card">
+              <div class="rhythm-title-row">
+                <span class="rhythm-name">Afternoon Focus</span>
+                <span class="rhythm-time-chip">12 PM &ndash; 5 PM</span>
+              </div>
+              <p class="rhythm-desc">Midday study blocks between lectures, lab sessions, and seminars.</p>
+            </div>
+          </label>
+
+          <label class="rhythm-card-label">
+            <input type="radio" name="preferred_time_slot" value="Evening" {% if preference.preferred_time_slot == "Evening" or not preference.preferred_time_slot %}checked{% endif %}>
+            <div class="rhythm-card">
+              <div class="rhythm-title-row">
+                <span class="rhythm-name">Evening Deep-Work</span>
+                <span class="rhythm-time-chip">5 PM &ndash; 10 PM</span>
+              </div>
+              <p class="rhythm-desc">Post-dinner library blocks and project sprint hours.</p>
+            </div>
+          </label>
+
+          <label class="rhythm-card-label">
+            <input type="radio" name="preferred_time_slot" value="Night" {% if preference.preferred_time_slot == "Night" %}checked{% endif %}>
+            <div class="rhythm-card">
+              <div class="rhythm-title-row">
+                <span class="rhythm-name">Night Owl</span>
+                <span class="rhythm-time-chip">10 PM &ndash; 3 AM</span>
+              </div>
+              <p class="rhythm-desc">Late-night sessions with quiet solidarity across dark campus dorms.</p>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Step 2: Daily Wellness Anchors -->
+      <section class="matching-step-section">
+        <div class="step-label-row">
+          <span class="step-number-badge">2</span>
+          <h2 class="step-title">Select your daily wellness anchors</h2>
+        </div>
+        <p class="step-subtitle">Small non-negotiables that keep you grounded during demanding weeks.</p>
+
+        <div class="habits-select-grid">
+          {% for habit in suggested_habits %}
+            <label class="habit-checkbox-label">
+              <input type="checkbox" name="goals" value="{{ habit.title }}" {% if forloop.counter <= 3 %}checked{% endif %}>
+              <span class="habit-text">{{ habit.title }}</span>
+              <span class="habit-category-badge">{{ habit.category }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Step 3: Campus Timezone -->
+      <section class="matching-step-section">
+        <div class="step-label-row">
+          <span class="step-number-badge">3</span>
+          <h2 class="step-title">Confirm your campus timezone</h2>
+        </div>
+        <p class="step-subtitle">Ensures daily streak cutoffs align with your local calendar midnight.</p>
+
+        <div class="timezone-row">
+          <input type="text" name="timezone" class="timezone-input" value="{{ preference.timezone|default:'Asia/Manila' }}" placeholder="e.g. Asia/Manila, America/New_York" required>
+        </div>
+      </section>
+
+      <!-- Step 4: The AnchorPod Quiet Solidarity Pledge -->
+      <section class="matching-step-section">
+        <div class="pledge-card">
+          <label class="pledge-row">
+            <input type="checkbox" name="pledge_accepted" id="pledge-checkbox" required checked>
+            <div class="pledge-text">
+              <strong>The Quiet Solidarity Pledge:</strong> I commit to checking in once a day for myself and my podmates. I understand there is no free-text chat, no cyberbullying, and no unsolicited spam &mdash; only gentle mutual presence.
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <div class="matching-actions">
+        <a href="{% url 'pods:my_pod' %}" class="matching-back-link">&larr; Return to My Pod</a>
+        <button type="submit" class="matching-submit-btn" id="submit-match-btn">
+          <span>Match with My 5-Person Pod</span>
+          <span>&rarr;</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Matching Overlay Simulation -->
+<div class="matching-overlay" id="matching-overlay">
+  <div class="matching-overlay-card">
+    <div class="matching-spinner"></div>
+    <h3 style="font: 400 24px Georgia, serif; margin: 0 0 10px; color: #fff;">Pairing your pod...</h3>
+    <p style="font-size: 13px; color: #a9cdc5; margin: 0; line-height: 1.5;">
+      Finding four university students with an aligned study rhythm and active commitments.
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById("matching-form");
+    const overlay = document.getElementById("matching-overlay");
+
+    if (form && overlay) {
+      form.addEventListener("submit", function() {
+        overlay.classList.add("active");
+      });
+    }
+  });
+</script>
+{% endblock %}

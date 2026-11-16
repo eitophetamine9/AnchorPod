@@ -52,3 +52,15 @@ class HomeVerticalSliceTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'avatar avatar-img')
 
+    def test_custom_404_page_renders_with_status_404(self):
+        response = self.client.get(reverse('custom_404'))
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, '404.html')
+        self.assertContains(response, 'This anchor has drifted', status_code=404)
+
+    def test_custom_500_page_renders_with_status_500(self):
+        response = self.client.get(reverse('custom_500'))
+        self.assertEqual(response.status_code, 500)
+        self.assertTemplateUsed(response, '500.html')
+        self.assertContains(response, 'A temporary ripple in the pod', status_code=500)
+

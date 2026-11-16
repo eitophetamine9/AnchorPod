@@ -23,6 +23,7 @@ from apps.login.views import login_view, logout_view
 from apps.register.views import register_view
 from apps.home.views import home_view, check_in_view
 from apps.pods.views import my_pod_view
+from anchorpod.views import custom_404_view, custom_500_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,6 +35,8 @@ urlpatterns = [
     path('goals/', include('apps.goals.urls')),
     path('pod/', include('apps.pods.urls')),
     path('pods/', my_pod_view, name='pods_alias'),
+    path('404/', custom_404_view, name='custom_404'),
+    path('500/', custom_500_view, name='custom_500'),
     path('', include('apps.home.urls')),
 
     # Non-namespaced aliases for backward compatibility with existing tests
@@ -43,6 +46,9 @@ urlpatterns = [
     path('', home_view, name='home'),
     path('check-in/', check_in_view, name='check_in'),
 ]
+
+handler404 = 'anchorpod.views.custom_404_view'
+handler500 = 'anchorpod.views.custom_500_view'
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

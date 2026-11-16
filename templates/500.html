@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>500 - Server Ripple | AnchorPod</title>
+  <style>
+    :root {
+      --forest-night: #1E3A2F;
+      --primary-accent: #2E5A44;
+      --warm-parchment: #F9F6F0;
+      --parchment-border: #E8E2D5;
+      --forest-charcoal: #2A362F;
+      --muted-slate: #627264;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #F4EFEB;
+      color: var(--forest-charcoal);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .error-card {
+      background: var(--warm-parchment);
+      border: 1px solid var(--parchment-border);
+      border-radius: 20px;
+      max-width: 600px;
+      width: 100%;
+      padding: 48px 36px;
+      text-align: center;
+      box-shadow: 0 6px 24px rgba(30, 58, 47, 0.06);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary-accent);
+      background: rgba(46, 90, 68, 0.08);
+      border: 1px solid rgba(46, 90, 68, 0.2);
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .symbol {
+      font-size: 3.5rem;
+      color: var(--primary-accent);
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+    h1 {
+      font-size: 2rem;
+      color: var(--forest-night);
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    p {
+      color: var(--muted-slate);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: var(--forest-night);
+      color: #FFFFFF;
+      padding: 12px 24px;
+      border-radius: 24px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s ease;
+    }
+    .btn-primary:hover {
+      background: var(--primary-accent);
+    }
+    .btn-secondary {
+      display: inline-block;
+      background: transparent;
+      color: var(--forest-night);
+      border: 1px solid var(--parchment-border);
+      padding: 12px 24px;
+      border-radius: 24px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(30, 58, 47, 0.05);
+    }
+    .brand-footnote {
+      margin-top: 36px;
+      font-size: 0.85rem;
+      color: var(--muted-slate);
+    }
+  </style>
+</head>
+<body>
+  <div class="error-card">
+    <span class="badge">500 Server Ripple</span>
+    <div class="symbol">&#9875;</div>
+    <h1>A temporary ripple in the pod.</h1>
+    <p>
+      Our systems encountered an unexpected wave. The pod is taking a quick breath to stabilize and re-anchor.
+      Please try refreshing the page, or return to calm waters.
+    </p>
+    <div class="actions">
+      <button class="btn-primary" onclick="window.location.reload();">Reload Page</button>
+      <a href="/" class="btn-secondary">Return to Home</a>
+    </div>
+  </div>
+  <div class="brand-footnote">AnchorPod &bull; Small steps, held together.</div>
+</body>
+</html>

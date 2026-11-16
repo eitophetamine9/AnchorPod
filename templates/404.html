@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}404 - Page Not Found | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<style>
+.error-page-container {
+  max-width: 680px;
+  margin: 60px auto 100px;
+  padding: 48px 32px;
+  text-align: center;
+  background: var(--warm-parchment, #F9F6F0);
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(30, 58, 47, 0.04);
+}
+
+.error-badge {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary-accent, #2E5A44);
+  background: rgba(46, 90, 68, 0.08);
+  border: 1px solid rgba(46, 90, 68, 0.2);
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.error-illustration {
+  font-size: 3.5rem;
+  color: var(--primary-accent, #2E5A44);
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.error-page-container h1 {
+  font-size: 2.2rem;
+  color: var(--forest-night, #1E3A2F);
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+
+.error-description {
+  color: var(--muted-slate, #627264);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin: 0 auto 32px;
+  max-width: 520px;
+}
+
+.error-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.error-btn-primary {
+  display: inline-block;
+  background: var(--forest-night, #1E3A2F);
+  color: #FFFFFF;
+  padding: 12px 26px;
+  border-radius: 24px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.error-btn-primary:hover {
+  background: var(--primary-accent, #2E5A44);
+  transform: translateY(-1px);
+}
+
+.error-btn-secondary {
+  display: inline-block;
+  background: transparent;
+  color: var(--forest-night, #1E3A2F);
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  padding: 12px 24px;
+  border-radius: 24px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.error-btn-secondary:hover {
+  background: rgba(30, 58, 47, 0.05);
+}
+
+.dark-theme .error-page-container {
+  background: #1B2922;
+  border-color: #2D4137;
+}
+
+.dark-theme .error-page-container h1 {
+  color: #F0EDE6;
+}
+
+.dark-theme .error-description {
+  color: #A3B3A5;
+}
+
+.dark-theme .error-btn-secondary {
+  border-color: #2D4137;
+  color: #D4DDD5;
+}
+
+.dark-theme .error-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-page-container">
+  <span class="error-badge">404 Error</span>
+  <div class="error-illustration">&#9875;</div>
+  <h1>This anchor has drifted.</h1>
+  <p class="error-description">
+    The page you are looking for does not exist, has been moved, or is temporarily out of reach.
+    Take a quiet breath and let us guide you back to calm harbor.
+  </p>
+  <div class="error-actions">
+    <a href="{% url 'home:home' %}" class="error-btn-primary">Return to Home</a>
+    <a href="{% url 'pods:my_pod' %}" class="error-btn-secondary">Go to My Pod</a>
+    <a href="{% url 'nudges:vault' %}" class="error-btn-secondary">Encouragement Vault</a>
+  </div>
+</div>
+{% endblock %}

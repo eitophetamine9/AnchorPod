@@ -23,6 +23,7 @@
         <div class="nudge-alert-content">
           <span class="nudge-alert-badge">Anonymous Nudge</span>
           <p class="nudge-alert-text">"{{ nudge.template.message }}"</p>
+          <a href="{% url 'nudges:vault' %}" class="nudge-vault-open-link" style="font-size: 0.82rem; color: var(--primary-accent, #2E5A44); font-weight: 600; text-decoration: underline; margin-left: 12px; white-space: nowrap;">Open Vault &rarr;</a>
         </div>
         <form method="post" action="{% url 'nudges:dismiss' nudge.id %}" class="nudge-dismiss-form">
           {% csrf_token %}

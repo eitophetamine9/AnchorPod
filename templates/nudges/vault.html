@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Encouragement Vault | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/nudges/vault.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="vault-shell">
+  <!-- Hero Section -->
+  <header class="vault-header">
+    <div class="vault-header-text">
+      <p class="eyebrow">Personal Sanctuary</p>
+      <h1>Encouragement Vault</h1>
+      <p class="vault-subtitle">
+        Quiet reminders, gentle check-ins, and shared solidarity from your pod peers.
+        Revisit these affirmations whenever you need grounded encouragement.
+      </p>
+    </div>
+
+    <!-- Stat Counters -->
+    <div class="vault-metrics">
+      <div class="vault-metric-card">
+        <span class="metric-value">{{ total_received }}</span>
+        <span class="metric-label">Received</span>
+      </div>
+      <div class="vault-metric-card {% if unread_received > 0 %}metric-highlight{% endif %}">
+        <span class="metric-value">{{ unread_received }}</span>
+        <span class="metric-label">Unread</span>
+      </div>
+      <div class="vault-metric-card">
+        <span class="metric-value">{{ total_sent }}</span>
+        <span class="metric-label">Shared by You</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Controls Bar -->
+  <div class="vault-controls">
+    <div class="vault-tabs">
+      <a href="?filter=received{% if selected_category != 'all' %}&category={{ selected_category }}{% endif %}"
+         class="vault-tab {% if view_mode == 'received' %}active{% endif %}">
+        Received Affirmations ({{ total_received }})
+      </a>
+      <a href="?filter=sent{% if selected_category != 'all' %}&category={{ selected_category }}{% endif %}"
+         class="vault-tab {% if view_mode == 'sent' %}active{% endif %}">
+        Affirmations You Sent ({{ total_sent }})
+      </a>
+    </div>
+
+    {% if unread_received > 0 and view_mode == 'received' %}
+      <form method="post" action="{% url 'nudges:vault' %}" class="mark-all-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="mark_all_read">
+        <button type="submit" class="mark-all-button">
+          Mark All as Read
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  <!-- Category Filter Chips -->
+  <div class="category-filters">
+    <span class="filter-label">Filter by theme:</span>
+    <div class="filter-chips">
+      {% for cat in categories %}
+        <a href="?filter={{ view_mode }}&category={{ cat.id }}"
+           class="filter-chip {% if selected_category == cat.id %}active{% endif %}">
+          {{ cat.label }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Cards Grid -->
+  {% if nudges %}
+    <div class="vault-grid">
+      {% for nudge in nudges %}
+        <article class="nudge-vault-card {% if not nudge.is_read and view_mode == 'received' %}is-unread{% endif %}">
+          <div class="nudge-card-header">
+            <span class="category-pill category-{{ nudge.template.category }}">
+              {{ nudge.template.get_category_display|default:nudge.template.category|capfirst }}
+            </span>
+            {% if not nudge.is_read and view_mode == 'received' %}
+              <span class="unread-badge">New</span>
+            {% endif %}
+          </div>
+
+          <blockquote class="nudge-card-body">
+            "{{ nudge.template.message }}"
+          </blockquote>
+
+          <footer class="nudge-card-footer">
+            <div class="nudge-meta">
+              <span class="sender-tag">
+                {% if view_mode == 'received' %}
+                  From a pod peer
+                {% else %}
+                  To pod peer
+                {% endif %}
+              </span>
+              <span class="meta-dot">&bull;</span>
+              <span class="meta-pod">{{ nudge.pod.name }}</span>
+              <span class="meta-dot">&bull;</span>
+              <time datetime="{{ nudge.sent_at|date:'c' }}" class="meta-time">
+                {{ nudge.sent_at|date:"M j, Y &bull; g:i A" }}
+              </time>
+            </div>
+
+            {% if not nudge.is_read and view_mode == 'received' %}
+              <form method="post" action="{% url 'nudges:dismiss' nudge.id %}" class="single-dismiss-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'nudges:vault' %}?filter={{ view_mode }}&category={{ selected_category }}">
+                <button type="submit" class="read-button" title="Mark as read">
+                  Mark Read
+                </button>
+              </form>
+            {% endif %}
+          </footer>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="vault-empty-state">
+      <div class="empty-state-symbol">&#9875;</div>
+      <h3>No affirmations found</h3>
+      <p>
+        {% if selected_category != 'all' %}
+          There are no messages filed under this theme yet. Try choosing another category or viewing all messages.
+        {% elif view_mode == 'sent' %}
+          You have not sent any peer nudges yet. Visit your pod circle to send a quiet word of support to a member.
+        {% else %}
+          Your encouragement vault is currently calm and quiet. When pod members send you gentle reminders, they will appear here.
+        {% endif %}
+      </p>
+      <div class="empty-actions">
+        <a href="{% url 'pods:my_pod' %}" class="button-primary">Visit My Pod</a>
+        <a href="{% url 'home:home' %}" class="button-secondary">Return Home</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

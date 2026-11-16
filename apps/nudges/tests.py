@@ -62,3 +62,48 @@ class NudgeSystemTests(TestCase):
         self.assertRedirects(response, reverse('home:home'))
         nudge.refresh_from_db()
         self.assertTrue(nudge.is_read)
+
+    def test_nudge_vault_requires_login(self):
+        response = self.client.get(reverse('nudges:vault'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+
+    def test_nudge_vault_renders_for_authenticated_user(self):
+        send_anonymous_nudge(self.user1, self.user2.id, self.template.id)
+        self.client.force_login(self.user2)
+        response = self.client.get(reverse('nudges:vault'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'nudges/vault.html')
+        self.assertEqual(response.context['total_received'], 1)
+        self.assertEqual(response.context['unread_received'], 1)
+        self.assertEqual(len(response.context['nudges']), 1)
+
+    def test_nudge_vault_category_filtering(self):
+        calm_template = NudgeTemplate.objects.filter(category='calm').first()
+        if not calm_template:
+            calm_template = NudgeTemplate.objects.create(message='Calm test', category='calm')
+        send_anonymous_nudge(self.user1, self.user2.id, self.template.id)
+        send_anonymous_nudge(self.user1, self.user2.id, calm_template.id)
+
+        self.client.force_login(self.user2)
+        response = self.client.get(reverse('nudges:vault') + '?category=calm')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['nudges']), 1)
+        self.assertEqual(response.context['nudges'][0].template.category, 'calm')
+
+    def test_nudge_vault_mark_all_read(self):
+        send_anonymous_nudge(self.user1, self.user2.id, self.template.id)
+        self.client.force_login(self.user2)
+        self.assertEqual(Nudge.objects.filter(recipient=self.user2, is_read=False).count(), 1)
+
+        response = self.client.post(reverse('nudges:vault'), {'action': 'mark_all_read'})
+        self.assertRedirects(response, reverse('nudges:vault'))
+        self.assertEqual(Nudge.objects.filter(recipient=self.user2, is_read=False).count(), 0)
+
+    def test_nudge_vault_view_sent_tab(self):
+        send_anonymous_nudge(self.user1, self.user2.id, self.template.id)
+        self.client.force_login(self.user1)
+        response = self.client.get(reverse('nudges:vault') + '?filter=sent')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total_sent'], 1)
+        self.assertEqual(len(response.context['nudges']), 1)

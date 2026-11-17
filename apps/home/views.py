@@ -21,31 +21,46 @@ def landing_view(request):
 def home_view(request):
     if not request.user.is_authenticated:
         return landing_view(request)
-    profile, _ = Profile.objects.get_or_create(
-        user=request.user,
-        defaults={
-            'nickname': f"Anchor {request.user.username[:1].upper() or 'A'}",
-            'goals': ['Drink water', 'Step outside', 'Study for 25 minutes'],
-        }
-    )
+
+    user = request.user
+    profile = getattr(user, 'profile', None)
+    if not profile:
+        profile, _ = Profile.objects.get_or_create(
+            user=user,
+            defaults={
+                'nickname': f"Anchor {user.username[:1].upper() or 'A'}",
+                'goals': ['Drink water', 'Step outside', 'Study for 25 minutes'],
+            }
+        )
 
     today = date.today()
 
-    # Retrieve or allocate user's active Pod
-    pod = get_or_create_user_pod(request.user)
+    # Retrieve or allocate user's active Pod (prefetches streak in single join)
+    pod = get_or_create_user_pod(user)
 
-    # Fetch active memberships and their profiles
+    # Fetch active memberships and their profiles in a single query
     memberships = list(
         PodMembership.objects.filter(pod=pod, status='active')
         .select_related('user', 'user__profile')
     )
 
     member_users = [m.user for m in memberships]
-    checked_in_user_ids = set(
-        DailyCheckIn.objects.filter(user__in=member_users, date=today).values_list('user_id', flat=True)
+
+    # Batch-fetch check-ins for all pod members + user in a single query
+    recent_checkins = list(
+        DailyCheckIn.objects.filter(
+            user__in=set(member_users + [user]),
+            date__gte=today - timedelta(days=60),
+            date__lte=today
+        ).values_list('user_id', 'date')
     )
 
-    user_checked_in = request.user.id in checked_in_user_ids
+    checked_in_user_ids = {u_id for u_id, d in recent_checkins if d == today}
+    recent_checkin_dates = {d for u_id, d in recent_checkins if u_id == user.id}
+
+    user_checked_in = user.id in checked_in_user_ids
+    checked_in_count = len(checked_in_user_ids)
+    total_members = len(memberships) or 5
 
     pod_members = []
     for m in memberships:
@@ -58,7 +73,7 @@ def home_view(request):
             )
 
         is_checked = member_user.id in checked_in_user_ids
-        is_self = (member_user.id == request.user.id)
+        is_self = (member_user.id == user.id)
         nickname = member_profile.nickname or member_user.username
         initials = nickname[:2].upper() if len(nickname) >= 2 else "AP"
 
@@ -76,38 +91,19 @@ def home_view(request):
     # Keep self at the top of the list
     pod_members.sort(key=lambda m: (not m['is_self'], m['nickname'].lower()))
 
-    checked_in_count = len(checked_in_user_ids)
-    total_members = len(memberships) or 5
-
-    # Update summary and streak
-    update_pod_daily_status(pod, today)
+    # Update summary and streak using in-memory counts (no redundant DB writes on GET)
+    update_pod_daily_status(pod, today, known_members=member_users, known_checked_in_count=checked_in_count)
 
     # Day Counter: Days with Pod
     formation_date = pod.formation_date or today
     day_number = max((today - formation_date).days + 1, 1)
 
-    # Batch-fetch user's recent check-ins (last 60 days) in a single query
-    recent_checkin_dates = set(
-        DailyCheckIn.objects.filter(
-            user=request.user,
-            date__gte=today - timedelta(days=60),
-            date__lte=today
-        ).values_list('date', flat=True)
-    )
-
     # Dynamic Consecutive Day Counter (in-memory lookup)
-    if user_checked_in:
-        streak = 1
-        check_date = today - timedelta(days=1)
-        while check_date in recent_checkin_dates:
-            streak += 1
-            check_date -= timedelta(days=1)
-    else:
-        streak = 0
-        check_date = today - timedelta(days=1)
-        while check_date in recent_checkin_dates:
-            streak += 1
-            check_date -= timedelta(days=1)
+    streak = 1 if user_checked_in else 0
+    check_date = today - timedelta(days=1)
+    while check_date in recent_checkin_dates:
+        streak += 1
+        check_date -= timedelta(days=1)
 
     # Dynamic Week-at-a-Glance Tracker (Monday to Sunday, in-memory lookup)
     start_of_week = today - timedelta(days=today.weekday())
@@ -135,11 +131,11 @@ def home_view(request):
     progress_pct = int((checked_in_count / total_members) * 100) if total_members else 0
 
     # Retrieve unread nudges and pre-approved templates
-    unread_nudges = get_unread_nudges_for_user(request.user)
+    unread_nudges = get_unread_nudges_for_user(user)
     nudge_templates = ensure_default_templates()
 
     # Retrieve interactive self-care goals and today's completion status
-    user_goals, goals_completed_count, goals_total_count = get_user_goals_with_today_status(request.user, today)
+    user_goals, goals_completed_count, goals_total_count = get_user_goals_with_today_status(user, today)
 
     return render(request, "home/home.html", {
         "profile": profile,

@@ -30,15 +30,18 @@ DEFAULT_TEMPLATES = [
 
 def ensure_default_templates():
     """
-    Seeds pre-approved positive templates if none exist in the database.
+    Seeds pre-approved positive templates if none exist in the database,
+    and returns them in a single query.
     """
-    if not NudgeTemplate.objects.exists():
-        templates = [
+    templates = list(NudgeTemplate.objects.all())
+    if not templates:
+        to_create = [
             NudgeTemplate(message=t["message"], category=t["category"])
             for t in DEFAULT_TEMPLATES
         ]
-        NudgeTemplate.objects.bulk_create(templates)
-    return NudgeTemplate.objects.all()
+        NudgeTemplate.objects.bulk_create(to_create)
+        templates = list(NudgeTemplate.objects.all())
+    return templates
 
 
 def send_anonymous_nudge(sender, recipient_id, template_id):

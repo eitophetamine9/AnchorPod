@@ -31,23 +31,20 @@ def my_pod_view(request):
     individual habits, and rhythm preferences.
     """
     today = date.today()
-    pod = get_or_create_user_pod(request.user)
-
-    # Ensure daily summary is updated
-    update_pod_daily_status(pod, today)
+    user = request.user
+    pod = get_or_create_user_pod(user)
 
     # Days with pod
     formation_date = pod.formation_date or today
     day_number = max((today - formation_date).days + 1, 1)
 
-    # Active memberships
+    # Active memberships and profiles in a single query
     memberships = list(
         PodMembership.objects.filter(pod=pod, status='active')
         .select_related('user', 'user__profile')
     )
 
     member_users = [m.user for m in memberships]
-    member_user_ids = [u.id for u in member_users]
 
     # Batch 1: Fetch recent check-ins for all pod members (last 60 days)
     recent_checkins = list(
@@ -69,6 +66,9 @@ def my_pod_view(request):
     total_members = len(memberships) or 5
     checked_in_count = len(checked_in_user_ids)
     progress_pct = int((checked_in_count / total_members) * 100) if total_members else 0
+
+    # Ensure daily summary is updated using in-memory data (no redundant DB writes on GET)
+    update_pod_daily_status(pod, today, known_members=member_users, known_checked_in_count=checked_in_count)
 
     # Batch 2: Fetch all active habits for all pod members in a single query
     all_goals = list(
@@ -92,7 +92,7 @@ def my_pod_view(request):
                 defaults={'nickname': member_user.username}
             )
 
-        is_self = (member_user.id == request.user.id)
+        is_self = (member_user.id == user.id)
         is_checked = (member_user.id in checked_in_user_ids)
         streak, _ = calculate_user_streak(user_checkins_map[member_user.id], today)
 
@@ -128,11 +128,13 @@ def my_pod_view(request):
     # Keep current user first, then sort by nickname
     pod_members.sort(key=lambda m: (not m['is_self'], m['nickname'].lower()))
 
-    # Pod streak
-    streak_obj, _ = PodStreak.objects.get_or_create(
-        pod=pod,
-        defaults={'current_streak': 0, 'longest_streak': 0}
-    )
+    # Pod streak (reusing streak from pod join)
+    streak_obj = getattr(pod, 'streak', None)
+    if not streak_obj:
+        streak_obj, _ = PodStreak.objects.get_or_create(
+            pod=pod,
+            defaults={'current_streak': 0, 'longest_streak': 0}
+        )
 
     # 7-Day Pod Momentum History (Computed in-memory)
     momentum_history = []

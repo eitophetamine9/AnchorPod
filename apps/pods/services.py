@@ -68,12 +68,13 @@ def get_or_create_user_pod(user):
     membership = PodMembership.objects.filter(
         user=user,
         status='active'
-    ).select_related('pod').first()
+    ).select_related('pod', 'pod__streak').first()
 
     if membership:
         pod = membership.pod
-        # Ensure streak object exists
-        PodStreak.objects.get_or_create(pod=pod, defaults={'current_streak': 0, 'longest_streak': 0})
+        # Ensure streak object exists only if missing
+        if not hasattr(pod, 'streak') or pod.streak is None:
+            PodStreak.objects.get_or_create(pod=pod, defaults={'current_streak': 0, 'longest_streak': 0})
         return pod
 
     with transaction.atomic():
@@ -234,31 +235,42 @@ def ensure_pod_peers(pod, current_user):
             DailyCheckIn.objects.get_or_create(user=peer_user, date=today)
 
 
-def update_pod_daily_status(pod, target_date=None):
+def update_pod_daily_status(pod, target_date=None, known_members=None, known_checked_in_count=None):
     """
     Evaluates check-in completion across all active pod members for target_date.
     Updates or creates PodDailySummary and recalculates PodStreak.
+    Avoids redundant remote DB queries and writes if counts already known or unchanged.
     """
     if target_date is None:
         target_date = date.today()
 
-    active_memberships = list(PodMembership.objects.filter(pod=pod, status='active').select_related('user'))
-    total_members = len(active_memberships)
+    if known_members is not None:
+        total_members = len(known_members)
+        member_users = known_members
+    else:
+        active_memberships = list(PodMembership.objects.filter(pod=pod, status='active').select_related('user'))
+        total_members = len(active_memberships)
+        member_users = [m.user for m in active_memberships]
+
     if total_members == 0:
         return 0, 0, False
 
-    member_users = [m.user for m in active_memberships]
-    checked_in_count = DailyCheckIn.objects.filter(
-        user__in=member_users,
-        date=target_date
-    ).count()
+    if known_checked_in_count is not None:
+        checked_in_count = known_checked_in_count
+    else:
+        checked_in_count = DailyCheckIn.objects.filter(
+            user__in=member_users,
+            date=target_date
+        ).count()
 
     all_completed = (checked_in_count == total_members)
 
-    streak_obj, _ = PodStreak.objects.get_or_create(
-        pod=pod,
-        defaults={'current_streak': 0, 'longest_streak': 0}
-    )
+    streak_obj = getattr(pod, 'streak', None)
+    if not streak_obj:
+        streak_obj, _ = PodStreak.objects.get_or_create(
+            pod=pod,
+            defaults={'current_streak': 0, 'longest_streak': 0}
+        )
 
     summary, created = PodDailySummary.objects.get_or_create(
         pod=pod,
@@ -271,21 +283,31 @@ def update_pod_daily_status(pod, target_date=None):
     )
 
     if not created:
-        summary.checked_in_count = checked_in_count
-        summary.total_members = total_members
+        needs_save = False
+        if summary.checked_in_count != checked_in_count:
+            summary.checked_in_count = checked_in_count
+            needs_save = True
+        if summary.total_members != total_members:
+            summary.total_members = total_members
+            needs_save = True
         if all_completed and not summary.streak_incremented:
             summary.streak_incremented = True
+            needs_save = True
             streak_obj.current_streak += 1
             if streak_obj.current_streak > streak_obj.longest_streak:
                 streak_obj.longest_streak = streak_obj.current_streak
             streak_obj.last_completed_date = target_date
             streak_obj.save()
-        summary.save()
+
+        if needs_save:
+            summary.save()
     elif all_completed:
         streak_obj.current_streak += 1
         if streak_obj.current_streak > streak_obj.longest_streak:
             streak_obj.longest_streak = streak_obj.current_streak
         streak_obj.last_completed_date = target_date
         streak_obj.save()
+
+    return checked_in_count, total_members, all_completed
 
     return checked_in_count, total_members, all_completed

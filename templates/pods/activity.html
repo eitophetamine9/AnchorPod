@@ -1,0 +1,619 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SQL JOIN & Subquery Activity | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<style>
+.activity-shell {
+  max-width: 1120px;
+  margin: 32px auto 80px;
+  padding: 0 24px;
+}
+
+.activity-header {
+  margin-bottom: 32px;
+}
+
+.activity-breadcrumb {
+  font-size: 0.85rem;
+  color: var(--muted-slate, #627264);
+  margin-bottom: 8px;
+}
+
+.activity-breadcrumb a {
+  color: var(--primary-accent, #2E5A44);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.activity-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.activity-header h1 {
+  font-size: 2.2rem;
+  color: var(--forest-night, #1E3A2F);
+  margin: 4px 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.activity-subtitle {
+  color: var(--muted-slate, #627264);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 720px;
+}
+
+.activity-nav-btns {
+  display: flex;
+  gap: 12px;
+}
+
+.activity-btn {
+  display: inline-block;
+  background: var(--warm-parchment, #F9F6F0);
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  color: var(--forest-night, #1E3A2F);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.activity-btn:hover {
+  background: var(--forest-night, #1E3A2F);
+  color: #FFFFFF;
+}
+
+/* Metric Tiles */
+.activity-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.activity-metric-tile {
+  background: var(--warm-parchment, #F9F6F0);
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.activity-metric-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-slate, #627264);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.activity-metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--forest-night, #1E3A2F);
+  line-height: 1.1;
+}
+
+.activity-metric-subtext {
+  font-size: 0.82rem;
+  color: var(--muted-slate, #627264);
+  margin-top: 6px;
+}
+
+/* Operation Section Cards */
+.operation-card {
+  background: #FFFFFF;
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  border-radius: 18px;
+  padding: 32px;
+  margin-bottom: 36px;
+  box-shadow: 0 4px 14px rgba(30, 58, 47, 0.03);
+}
+
+.operation-badge {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgba(46, 90, 68, 0.1);
+  color: var(--primary-accent, #2E5A44);
+  margin-bottom: 12px;
+}
+
+.operation-title {
+  font-size: 1.55rem;
+  color: var(--forest-night, #1E3A2F);
+  margin: 0 0 10px;
+}
+
+.operation-desc {
+  color: var(--muted-slate, #627264);
+  font-size: 0.96rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* Info Summary Box */
+.info-summary-box {
+  background: var(--warm-parchment, #F9F6F0);
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.info-summary-box table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.info-summary-box th,
+.info-summary-box td {
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.info-summary-box th {
+  color: var(--muted-slate, #627264);
+  font-weight: 600;
+  width: 25%;
+}
+
+.info-summary-box td {
+  color: var(--forest-charcoal, #2A362F);
+  font-family: monospace;
+}
+
+/* Data Tables */
+.data-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: #FFFFFF;
+}
+
+.data-table th {
+  background: var(--warm-parchment, #F9F6F0);
+  color: var(--forest-night, #1E3A2F);
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--parchment-border, #E8E2D5);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(232, 226, 213, 0.5);
+  color: var(--forest-charcoal, #2A362F);
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.status-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.status-chip.chip-active {
+  background: #E8F0EC;
+  color: #2E5A44;
+}
+
+.status-chip.chip-pending {
+  background: #F8EFE3;
+  color: #7A531E;
+}
+
+/* Code & SQL Inspector Blocks */
+.sql-inspector {
+  background: #18251F;
+  border-radius: 12px;
+  padding: 20px;
+  color: #E6EAE7;
+  margin-top: 20px;
+}
+
+.sql-inspector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #273A30;
+  padding-bottom: 8px;
+}
+
+.sql-inspector-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #81B29A;
+}
+
+.sql-block {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #F0EDE6;
+  margin: 0;
+}
+
+.orm-badge {
+  background: #2E5A44;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-family: monospace;
+}
+
+/* Dark Theme Overrides */
+.dark-theme .operation-card {
+  background: #18251F;
+  border-color: #273A30;
+}
+
+.dark-theme .activity-header h1,
+.dark-theme .operation-title {
+  color: #F0EDE6;
+}
+
+.dark-theme .activity-subtitle,
+.dark-theme .operation-desc {
+  color: #A3B3A5;
+}
+
+.dark-theme .activity-metric-tile,
+.dark-theme .info-summary-box {
+  background: #1B2922;
+  border-color: #2D4137;
+}
+
+.dark-theme .activity-metric-value {
+  color: #F0EDE6;
+}
+
+.dark-theme .data-table {
+  background: #18251F;
+}
+
+.dark-theme .data-table th {
+  background: #1B2922;
+  color: #F0EDE6;
+  border-color: #2D4137;
+}
+
+.dark-theme .data-table td {
+  color: #D4DDD5;
+  border-color: #273A30;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="activity-shell">
+
+  <!-- Header -->
+  <header class="activity-header">
+    <div class="activity-breadcrumb">
+      <a href="{% url 'home:home' %}">Dashboard</a> /
+      <a href="{% url 'pods:my_pod' %}">My Pod ({{ pod.name }})</a> /
+      <span>SQL JOIN & Subquery Verification</span>
+    </div>
+
+    <div class="activity-title-row">
+      <div>
+        <h1>Database Operations: JOIN & Subquery</h1>
+        <p class="activity-subtitle">
+          Guided Implementation Activity demonstrating relational data retrieval using
+          Python Django ORM and Supabase PostgreSQL for AnchorPod.
+        </p>
+      </div>
+
+      <div class="activity-nav-btns">
+        <a href="{% url 'pods:my_pod' %}" class="activity-btn">&larr; Back to My Pod</a>
+        <a href="{% url 'home:home' %}" class="activity-btn">Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Summary Metric Tiles -->
+  <section class="activity-metrics-row">
+    <div class="activity-metric-tile">
+      <div class="activity-metric-label">Active Pod Circle</div>
+      <div class="activity-metric-value">{{ pod.name }}</div>
+      <div class="activity-metric-subtext">Time Slot: {{ pod.time_slot }}</div>
+    </div>
+
+    <div class="activity-metric-tile">
+      <div class="activity-metric-label">Total Roster Members (JOIN)</div>
+      <div class="activity-metric-value">{{ total_members }}</div>
+      <div class="activity-metric-subtext">Table: pod_membership joined with auth_user & profile</div>
+    </div>
+
+    <div class="activity-metric-tile">
+      <div class="activity-metric-label">Checked In Today (SUBQUERY)</div>
+      <div class="activity-metric-value">{{ checked_in_count }}/{{ total_members }}</div>
+      <div class="activity-metric-subtext">Evaluated against home_dailycheckin ({{ today|date:"M d" }})</div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       PART 1: SQL JOIN IMPLEMENTATION
+       ======================================================================== -->
+  <section class="operation-card">
+    <span class="operation-badge">Part 1: SQL JOIN Implementation</span>
+    <h2 class="operation-title">Pod Member Roster with Associated Profiles</h2>
+    <p class="operation-desc">
+      Combines records from <strong>pod_membership</strong>, <strong>auth_user</strong>,
+      <strong>profile_profile</strong>, and <strong>pod_pod</strong> using Django ORM's
+      <code>select_related()</code>. This performs an <code>INNER JOIN</code> and <code>LEFT OUTER JOIN</code>
+      in PostgreSQL, allowing member records, user account credentials, and student profile metadata to be
+      retrieved in a single query.
+    </p>
+
+    <!-- Table Relationship Metadata -->
+    <div class="info-summary-box">
+      <table>
+        <tr>
+          <th>Main Table:</th>
+          <td>pod_membership (Foreign Key: user_id, pod_id)</td>
+        </tr>
+        <tr>
+          <th>Joined Tables:</th>
+          <td>auth_user (Primary Key: id), profile_profile (Foreign Key: user_id), pod_pod (Primary Key: id)</td>
+        </tr>
+        <tr>
+          <th>Relationship:</th>
+          <td>Many-to-One (Membership &rarr; User), One-to-One (User &rarr; Profile), Many-to-One (Membership &rarr; Pod)</td>
+        </tr>
+        <tr>
+          <th>Django ORM Code:</th>
+          <td><code>PodMembership.objects.filter(pod=pod, status="active").select_related("user", "user__profile", "pod")</code></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Live Results Table -->
+    <div class="data-table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Member Nickname</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Pod Name</th>
+            <th>Time Slot</th>
+            <th>Joined Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in join_results %}
+            <tr>
+              <td>
+                <strong>{{ m.user.profile.nickname|default:m.user.username }}</strong>
+                {% if m.user == user %}<small style="color: var(--primary-accent);">(You)</small>{% endif %}
+              </td>
+              <td><code>{{ m.user.username }}</code></td>
+              <td>{{ m.role|capfirst }}</td>
+              <td><span class="status-chip chip-active">{{ m.status|capfirst }}</span></td>
+              <td>{{ m.pod.name }}</td>
+              <td>{{ m.pod.time_slot }}</td>
+              <td>{{ m.joined_at|date:"M d, Y" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--muted-slate);">No active memberships found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SQL Inspector -->
+    <div class="sql-inspector">
+      <div class="sql-inspector-header">
+        <span class="sql-inspector-title">Generated SQL Query (Inspected via Django ORM .query)</span>
+        <span class="orm-badge">INNER JOIN & LEFT OUTER JOIN</span>
+      </div>
+      <pre class="sql-block">{{ join_sql }}</pre>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       PART 2: SQL SUBQUERY IMPLEMENTATION
+       ======================================================================== -->
+  <section class="operation-card">
+    <span class="operation-badge">Part 2: SQL SUBQUERY Implementation</span>
+    <h2 class="operation-title">Verified Daily Check-Ins via Nested Subquery</h2>
+    <p class="operation-desc">
+      Filters active pod members by checking whether their <code>user_id</code> exists in the set of
+      users who completed a check-in record for today's date (<code>{{ today_display }}</code>).
+      Implemented using Django's <code>Subquery()</code> expression, this compiles to an outer SQL query
+      with a nested <code>WHERE user_id IN (SELECT user_id FROM home_dailycheckin WHERE date = ...)</code>.
+    </p>
+
+    <!-- Subquery Relationship Metadata -->
+    <div class="info-summary-box">
+      <table>
+        <tr>
+          <th>Inner Query:</th>
+          <td><code>DailyCheckIn.objects.filter(date=today).values("user_id")</code></td>
+        </tr>
+        <tr>
+          <th>Outer Query:</th>
+          <td><code>PodMembership.objects.filter(pod=pod, status="active", user_id__in=Subquery(inner_subquery))</code></td>
+        </tr>
+        <tr>
+          <th>Condition:</th>
+          <td><code>pod_membership.user_id IN (SELECT home_dailycheckin.user_id WHERE date = '{{ today|date:"Y-m-d" }}')</code></td>
+        </tr>
+        <tr>
+          <th>Domain Purpose:</th>
+          <td>Identifies students whose daily streak commitment is satisfied without loading non-matching records into memory.</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Live Subquery Results: Checked in Members -->
+    <h3 style="font-size: 1.15rem; color: var(--forest-night, #1E3A2F); margin-bottom: 12px;">
+      1. Members Satisfying Subquery (Checked In Today - {{ checked_in_count }})
+    </h3>
+    <div class="data-table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Nickname</th>
+            <th>Username</th>
+            <th>Subquery Condition</th>
+            <th>Daily Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in subquery_results %}
+            <tr>
+              <td><code>#{{ m.user.id }}</code></td>
+              <td><strong>{{ m.user.profile.nickname|default:m.user.username }}</strong></td>
+              <td>{{ m.user.username }}</td>
+              <td><span style="font-family: monospace; color: #2E5A44;">IN (SELECT user_id FROM home_dailycheckin)</span></td>
+              <td><span class="status-chip chip-active">&#10003; Checked In Today</span></td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--muted-slate);">No pod members have checked in for today yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Live Subquery Results: Pending Members -->
+    <h3 style="font-size: 1.15rem; color: var(--forest-night, #1E3A2F); margin: 24px 0 12px;">
+      2. Members Pending Subquery (Not Checked In Today - {{ pending_results|length }})
+    </h3>
+    <div class="data-table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Nickname</th>
+            <th>Username</th>
+            <th>Subquery Condition</th>
+            <th>Daily Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in pending_results %}
+            <tr>
+              <td><code>#{{ m.user.id }}</code></td>
+              <td><strong>{{ m.user.profile.nickname|default:m.user.username }}</strong></td>
+              <td>{{ m.user.username }}</td>
+              <td><span style="font-family: monospace; color: #7A531E;">NOT IN (SELECT user_id FROM home_dailycheckin)</span></td>
+              <td><span class="status-chip chip-pending">&bull; Pending Daily Check-In</span></td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" style="text-align: center; color: #2E5A44; font-weight: 600;">All pod members have completed their check-in today!</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SQL Inspector -->
+    <div class="sql-inspector">
+      <div class="sql-inspector-header">
+        <span class="sql-inspector-title">Generated Nested Subquery SQL (Inspected via Django ORM .query)</span>
+        <span class="orm-badge">SUBQUERY: WHERE user_id IN (SELECT ...)</span>
+      </div>
+      <pre class="sql-block">{{ subquery_sql }}</pre>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       PART 3: SUPABASE DATABASE VERIFICATION GUIDE
+       ======================================================================== -->
+  <section class="operation-card">
+    <span class="operation-badge" style="background: rgba(30, 58, 47, 0.08); color: var(--forest-night);">Part 3: Supabase Verification Guide</span>
+    <h2 class="operation-title">Direct Supabase PostgreSQL Verification</h2>
+    <p class="operation-desc">
+      To verify these records directly in Supabase during the video demonstration:
+    </p>
+
+    <div class="info-summary-box">
+      <p style="margin: 0 0 10px; font-weight: 600; color: var(--forest-night);">1. Table Editor Inspection:</p>
+      <ul style="margin: 0 0 16px 20px; font-size: 0.9rem; color: var(--muted-slate); line-height: 1.6;">
+        <li>Open <strong>Table Editor &rarr; pod_membership</strong>: note <code>pod_id</code> and <code>user_id</code> foreign keys.</li>
+        <li>Open <strong>Table Editor &rarr; profile_profile</strong>: note <code>user_id</code> and <code>nickname</code> columns.</li>
+        <li>Open <strong>Table Editor &rarr; home_dailycheckin</strong>: note <code>user_id</code> and <code>date</code> records.</li>
+      </ul>
+
+      <p style="margin: 0 0 10px; font-weight: 600; color: var(--forest-night);">2. Supabase SQL Editor Verification Query:</p>
+      <div class="sql-inspector" style="margin-top: 8px;">
+        <pre class="sql-block">-- 1. Test SQL JOIN in Supabase SQL Editor:
+SELECT 
+    pm.id AS membership_id,
+    u.username,
+    prof.nickname,
+    p.name AS pod_name,
+    pm.role,
+    pm.status
+FROM pod_membership pm
+INNER JOIN auth_user u ON pm.user_id = u.id
+LEFT JOIN profile_profile prof ON u.id = prof.user_id
+INNER JOIN pod_pod p ON pm.pod_id = p.id
+WHERE pm.status = 'active';
+
+-- 2. Test SQL SUBQUERY in Supabase SQL Editor:
+SELECT 
+    pm.id,
+    u.username,
+    prof.nickname
+FROM pod_membership pm
+INNER JOIN auth_user u ON pm.user_id = u.id
+LEFT JOIN profile_profile prof ON u.id = prof.user_id
+WHERE pm.status = 'active'
+  AND pm.user_id IN (
+      SELECT user_id 
+      FROM home_dailycheckin 
+      WHERE date = CURRENT_DATE
+  );</pre>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

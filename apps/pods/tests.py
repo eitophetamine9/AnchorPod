@@ -124,4 +124,42 @@ class MyPodViewTests(TestCase):
         self.assertIsNotNone(active_membership)
         self.assertEqual(active_membership.pod.time_slot, 'Night')
 
+    def test_pod_activity_anonymous_redirects_to_login(self):
+        from django.urls import reverse
+        response = self.client.get(reverse('pods:activity'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login:login'), response.url)
+
+    def test_pod_activity_authenticated_renders_join_and_subquery(self):
+        from django.urls import reverse
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('pods:activity'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'pods/activity.html')
+        self.assertContains(response, 'Part 1: SQL JOIN Implementation')
+        self.assertContains(response, 'Part 2: SQL SUBQUERY Implementation')
+        self.assertIn('join_sql', response.context)
+        self.assertIn('subquery_sql', response.context)
+        self.assertIn('INNER JOIN', response.context['join_sql'])
+        self.assertIn('SELECT', response.context['subquery_sql'])
+
+    def test_pod_activity_subquery_filters_checked_in_members_accurately(self):
+        from django.urls import reverse
+        from apps.pods.services import get_or_create_user_pod
+        from apps.home.models import DailyCheckIn
+        from datetime import date
+        pod = get_or_create_user_pod(self.user)
+
+        # Mark only self.user as checked in today
+        DailyCheckIn.objects.filter(user=self.user, date=date.today()).delete()
+        DailyCheckIn.objects.create(user=self.user, date=date.today())
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('pods:activity'))
+        self.assertEqual(response.status_code, 200)
+
+        subquery_users = [m.user for m in response.context['subquery_results']]
+        self.assertIn(self.user, subquery_users)
+
+
 

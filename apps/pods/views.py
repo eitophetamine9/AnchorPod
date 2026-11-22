@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import date, timedelta
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Subquery
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 from apps.home.models import DailyCheckIn
@@ -256,4 +257,90 @@ def pod_matching_view(request):
         "current_pod": current_pod,
         "suggested_habits": suggested_habits,
     })
+
+
+@login_required
+def pod_activity_view(request):
+    """
+    Demonstrates SQL JOIN and SUBQUERY database operations using Django ORM
+    against Supabase PostgreSQL.
+
+    Implementation 1 - SQL JOIN:
+    Combines 'pod_membership', 'auth_user', 'profile_profile', and 'pod_pod'
+    using select_related() to retrieve member roster with profiles and pod info.
+
+    Implementation 2 - SQL SUBQUERY:
+    Uses Subquery() expression to filter active pod members who have logged
+    a daily check-in in 'home_dailycheckin' for today's date.
+    """
+    today = date.today()
+    pod = get_or_create_user_pod(request.user)
+
+    # -------------------------------------------------------------------------
+    # PART 1: SQL JOIN IMPLEMENTATION
+    # -------------------------------------------------------------------------
+    join_query = (
+        PodMembership.objects.filter(pod=pod, status="active")
+        .select_related("user", "user__profile", "pod")
+        .order_by("joined_at")
+    )
+    join_sql = str(join_query.query)
+    join_results = list(join_query)
+
+    # -------------------------------------------------------------------------
+    # PART 2: SQL SUBQUERY IMPLEMENTATION
+    # -------------------------------------------------------------------------
+    # Inner Query: Retrieve user IDs who checked in today
+    inner_subquery = DailyCheckIn.objects.filter(date=today).values("user_id")
+
+    # Outer Query: Retrieve pod members whose user_id is in the subquery
+    subquery_checked_in = (
+        PodMembership.objects.filter(
+            pod=pod,
+            status="active",
+            user_id__in=Subquery(inner_subquery)
+        )
+        .select_related("user", "user__profile", "pod")
+        .order_by("joined_at")
+    )
+    subquery_sql = str(subquery_checked_in.query)
+    subquery_results = list(subquery_checked_in)
+
+    # Complementary Subquery: Retrieve pod members pending today's check-in
+    subquery_pending = (
+        PodMembership.objects.filter(
+            pod=pod,
+            status="active"
+        )
+        .exclude(user_id__in=Subquery(inner_subquery))
+        .select_related("user", "user__profile", "pod")
+        .order_by("joined_at")
+    )
+    pending_sql = str(subquery_pending.query)
+    pending_results = list(subquery_pending)
+
+    # Console output for developer inspection during video recording (Step 17)
+    print("=" * 80)
+    print("[DJANGO ORM SQL VERIFICATION] PART 1 - SQL JOIN:")
+    print(join_sql)
+    print("-" * 80)
+    print("[DJANGO ORM SQL VERIFICATION] PART 2 - SQL SUBQUERY:")
+    print(subquery_sql)
+    print("=" * 80)
+
+    context = {
+        "pod": pod,
+        "today": today,
+        "today_display": today.strftime("%A, %B %d, %Y"),
+        "join_results": join_results,
+        "join_sql": join_sql,
+        "subquery_results": subquery_results,
+        "subquery_sql": subquery_sql,
+        "pending_results": pending_results,
+        "pending_sql": pending_sql,
+        "checked_in_count": len(subquery_results),
+        "total_members": len(join_results),
+    }
+    return render(request, "pods/activity.html", context)
+
 

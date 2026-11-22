@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import date, timedelta
+import sqlparse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Subquery
@@ -259,6 +260,22 @@ def pod_matching_view(request):
     })
 
 
+def format_sql(raw_sql):
+    """
+    Formats and indents raw SQL query strings using sqlparse for clean,
+    readable presentation in templates and terminal output.
+    """
+    try:
+        return sqlparse.format(
+            str(raw_sql),
+            reindent=True,
+            keyword_case="upper",
+            comma_first=False
+        )
+    except Exception:
+        return str(raw_sql)
+
+
 @login_required
 def pod_activity_view(request):
     """
@@ -284,7 +301,7 @@ def pod_activity_view(request):
         .select_related("user", "user__profile", "pod")
         .order_by("joined_at")
     )
-    join_sql = str(join_query.query)
+    join_sql = format_sql(join_query.query)
     join_results = list(join_query)
 
     # -------------------------------------------------------------------------
@@ -303,7 +320,7 @@ def pod_activity_view(request):
         .select_related("user", "user__profile", "pod")
         .order_by("joined_at")
     )
-    subquery_sql = str(subquery_checked_in.query)
+    subquery_sql = format_sql(subquery_checked_in.query)
     subquery_results = list(subquery_checked_in)
 
     # Complementary Subquery: Retrieve pod members pending today's check-in
@@ -316,7 +333,7 @@ def pod_activity_view(request):
         .select_related("user", "user__profile", "pod")
         .order_by("joined_at")
     )
-    pending_sql = str(subquery_pending.query)
+    pending_sql = format_sql(subquery_pending.query)
     pending_results = list(subquery_pending)
 
     # Console output for developer inspection during video recording (Step 17)

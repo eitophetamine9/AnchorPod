@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}SQL JOIN & Subquery Activity | AnchorPod{% endblock %}
+{% block title %}SQL Joins & Subqueries | AnchorPod{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -334,15 +334,14 @@
     <div class="activity-breadcrumb">
       <a href="{% url 'home:home' %}">Dashboard</a> /
       <a href="{% url 'pods:my_pod' %}">My Pod ({{ pod.name }})</a> /
-      <span>SQL JOIN & Subquery Verification</span>
+      <span>SQL Joins & Subqueries</span>
     </div>
 
     <div class="activity-title-row">
       <div>
-        <h1>Database Operations: JOIN & Subquery</h1>
+        <h1>SQL Joins & Subqueries</h1>
         <p class="activity-subtitle">
-          Guided Implementation Activity demonstrating relational data retrieval using
-          Python Django ORM and Supabase PostgreSQL for AnchorPod.
+          Live relational query inspection and database analytics for your 5-person micro-community.
         </p>
       </div>
 
@@ -375,10 +374,10 @@
   </section>
 
   <!-- ========================================================================
-       PART 1: SQL JOIN IMPLEMENTATION
+       RELATIONAL ROSTER (SQL JOIN)
        ======================================================================== -->
   <section class="operation-card">
-    <span class="operation-badge">Part 1: SQL JOIN Implementation</span>
+    <span class="operation-badge">Relational Roster (SQL JOIN)</span>
     <h2 class="operation-title">Pod Member Roster with Associated Profiles</h2>
     <p class="operation-desc">
       Combines records from <strong>pod_membership</strong>, <strong>auth_user</strong>,
@@ -458,10 +457,10 @@
   </section>
 
   <!-- ========================================================================
-       PART 2: SQL SUBQUERY IMPLEMENTATION
+       DAILY CHECK-IN STATUS (SQL SUBQUERY)
        ======================================================================== -->
   <section class="operation-card">
-    <span class="operation-badge">Part 2: SQL SUBQUERY Implementation</span>
+    <span class="operation-badge">Daily Check-In Status (SQL SUBQUERY)</span>
     <h2 class="operation-title">Verified Daily Check-Ins via Nested Subquery</h2>
     <p class="operation-desc">
       Filters active pod members by checking whether their <code>user_id</code> exists in the set of
@@ -569,24 +568,24 @@
   </section>
 
   <!-- ========================================================================
-       PART 3: SUPABASE DATABASE VERIFICATION GUIDE
+       DATABASE ARCHITECTURE & SQL SCHEMA
        ======================================================================== -->
   <section class="operation-card">
-    <span class="operation-badge" style="background: rgba(30, 58, 47, 0.08); color: var(--forest-night);">Part 3: Supabase Verification Guide</span>
-    <h2 class="operation-title">Direct Supabase PostgreSQL Verification</h2>
+    <span class="operation-badge" style="background: rgba(30, 58, 47, 0.08); color: var(--forest-night);">Database Architecture & SQL Schema</span>
+    <h2 class="operation-title">Database Schema & Supabase PostgreSQL Verification</h2>
     <p class="operation-desc">
-      To verify these records directly in Supabase during the video demonstration:
+      Technical relationship mapping and direct PostgreSQL queries for system administrators and database auditing.
     </p>
 
     <div class="info-summary-box">
-      <p style="margin: 0 0 10px; font-weight: 600; color: var(--forest-night);">1. Table Editor Inspection:</p>
+      <p style="margin: 0 0 10px; font-weight: 600; color: var(--forest-night);">1. Table Schema & Foreign Key Mapping:</p>
       <ul style="margin: 0 0 16px 20px; font-size: 0.9rem; color: var(--muted-slate); line-height: 1.6;">
         <li>Open <strong>Table Editor &rarr; pod_membership</strong>: note <code>pod_id</code> and <code>user_id</code> foreign keys.</li>
         <li>Open <strong>Table Editor &rarr; profile_profile</strong>: note <code>user_id</code> and <code>nickname</code> columns.</li>
         <li>Open <strong>Table Editor &rarr; home_dailycheckin</strong>: note <code>user_id</code> and <code>date</code> records.</li>
       </ul>
 
-      <p style="margin: 0 0 10px; font-weight: 600; color: var(--forest-night);">2. Supabase SQL Editor Verification Query:</p>
+      <p style="margin: 0 0 10px; font-weight: 600; color: var(--forest-night);">2. Direct PostgreSQL Query Verification:</p>
       <div class="sql-inspector" style="margin-top: 8px;">
         <pre class="sql-block">-- 1. Test SQL JOIN in Supabase SQL Editor:
 SELECT 

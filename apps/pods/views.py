@@ -10,7 +10,7 @@ from apps.home.models import DailyCheckIn
 from apps.nudges.services import ensure_default_templates
 from apps.profile.models import Profile
 from apps.goals.models import SelfCareGoal
-from .models import PodMembership, PodStreak, PodDailySummary, PodMatchingPreference
+from .models import PodMembership, PodStreak, PodDailySummary, PodMatchingPreference, PodReshuffleLog
 from .services import get_or_create_user_pod, update_pod_daily_status, match_or_reallocate_student
 
 
@@ -258,6 +258,51 @@ def pod_matching_view(request):
         "current_pod": current_pod,
         "suggested_habits": suggested_habits,
     })
+
+
+@login_required
+def pod_history_view(request):
+    """
+    Displays the student's pod journey history, milestone achievements,
+    and automatic reshuffle audit log (PodReshuffleLog).
+    """
+    user = request.user
+    today = date.today()
+    pod = get_or_create_user_pod(user)
+
+    # All historical memberships
+    memberships = list(
+        PodMembership.objects.filter(user=user)
+        .select_related("pod", "pod__streak")
+        .order_by("-joined_at")
+    )
+
+    # Reshuffle transitions from pod_reshuffle_log
+    reshuffle_logs = list(
+        PodReshuffleLog.objects.filter(user=user)
+        .select_related("old_pod", "new_pod")
+        .order_by("-transitioned_at")
+    )
+
+    # Days in current pod
+    active_membership = next((m for m in memberships if m.status == 'active'), None)
+    formation_date = pod.formation_date or today
+    joined_date = active_membership.joined_at.date() if active_membership and active_membership.joined_at else formation_date
+    days_in_current_pod = max((today - joined_date).days + 1, 1)
+
+    # Total lifetime check-ins
+    total_checkins = DailyCheckIn.objects.filter(user=user).count()
+
+    context = {
+        "pod": pod,
+        "days_in_current_pod": days_in_current_pod,
+        "total_checkins": total_checkins,
+        "memberships": memberships,
+        "reshuffle_logs": reshuffle_logs,
+        "reshuffle_count": len(reshuffle_logs),
+        "today_display": today.strftime("%A, %B %d, %Y"),
+    }
+    return render(request, "pods/history.html", context)
 
 
 def format_sql(raw_sql):

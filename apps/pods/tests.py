@@ -162,5 +162,47 @@ class MyPodViewTests(TestCase):
         subquery_users = [m.user for m in response.context['subquery_results']]
         self.assertIn(self.user, subquery_users)
 
+    def test_pod_history_anonymous_redirects_to_login(self):
+        from django.urls import reverse
+        response = self.client.get(reverse('pods:history'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login:login'), response.url)
+
+    def test_pod_history_authenticated_renders_template(self):
+        from django.urls import reverse
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('pods:history'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'pods/history.html')
+        self.assertContains(response, 'Pod Journey & Reshuffle History')
+        self.assertIn('reshuffle_logs', response.context)
+        self.assertIn('memberships', response.context)
+
+    def test_run_pod_reshuffle_rotates_inactive_member(self):
+        from apps.pods.services import run_pod_reshuffle
+        from apps.pods.models import Pod, PodMembership, PodReshuffleLog
+        from datetime import date, timedelta
+        from django.utils import timezone as django_tz
+
+        pod = Pod.objects.create(name="Reshuffle Test Pod", status="active")
+        dormant_user = User.objects.create_user(username="dormant@univ.edu", password="TestPassword123!")
+        
+        # Joined 5 days ago, no check-ins
+        membership = PodMembership.objects.create(
+            user=dormant_user,
+            pod=pod,
+            status="active"
+        )
+        old_joined = django_tz.now() - timedelta(days=5)
+        PodMembership.objects.filter(id=membership.id).update(joined_at=old_joined)
+
+        results = run_pod_reshuffle(days_inactive=3)
+        self.assertGreaterEqual(results["rotated_inactive_count"], 1)
+
+        membership.refresh_from_db()
+        self.assertEqual(membership.status, "inactive")
+        self.assertTrue(PodReshuffleLog.objects.filter(user=dormant_user, old_pod=pod).exists())
+
+
 
 

@@ -310,4 +310,102 @@ def update_pod_daily_status(pod, target_date=None, known_members=None, known_che
 
     return checked_in_count, total_members, all_completed
 
-    return checked_in_count, total_members, all_completed
+
+def run_pod_reshuffle(days_inactive=3, reference_date=None):
+    """
+    Automated background maintenance routine to detect dormant accounts and keep
+    micro-community pods active and balanced.
+
+    1. Identifies active memberships where the member has logged 0 check-ins in the
+       past `days_inactive` days (cutoff date = reference_date - days_inactive).
+    2. Marks those inactive memberships as 'inactive', vacating their pod slot.
+    3. Merges solitary active members in dormant pods into healthy pods.
+    4. Logs each transition into PodReshuffleLog with audit reasons.
+    Returns a dictionary summarizing the actions taken.
+    """
+    from django.utils import timezone as django_tz
+    from .models import PodReshuffleLog
+
+    if reference_date is None:
+        reference_date = date.today()
+
+    cutoff_date = reference_date - timedelta(days=days_inactive)
+    rotated_count = 0
+    reallocated_count = 0
+
+    with transaction.atomic():
+        # Get active memberships where the member joined on or before cutoff date
+        eligible_memberships = list(
+            PodMembership.objects.filter(
+                status='active',
+                joined_at__date__lte=cutoff_date
+            ).select_related('user', 'pod')
+        )
+
+        # Batch fetch check-ins since cutoff_date for all eligible users
+        recent_active_users = set(
+            DailyCheckIn.objects.filter(
+                user__in=[m.user for m in eligible_memberships],
+                date__gte=cutoff_date,
+                date__lte=reference_date
+            ).values_list('user_id', flat=True)
+        )
+
+        for m in eligible_memberships:
+            if m.user_id not in recent_active_users:
+                # Mark as inactive and log
+                m.status = 'inactive'
+                m.left_at = django_tz.now()
+                m.save()
+
+                PodReshuffleLog.objects.create(
+                    user=m.user,
+                    old_pod=m.pod,
+                    new_pod=None,
+                    reason=f"Inactivity auto-rotation ({days_inactive}+ days dormant)"
+                )
+                rotated_count += 1
+
+        # Check for pods with only 1 active member remaining and reallocate them
+        solitary_pods = (
+            Pod.objects.filter(status='active')
+            .annotate(active_count=Count('memberships', filter=Q(memberships__status='active')))
+            .filter(active_count=1)
+        )
+
+        for pod in solitary_pods:
+            solitary_member = PodMembership.objects.filter(pod=pod, status='active').select_related('user').first()
+            if solitary_member:
+                # Find an open pod with space sharing the same time slot
+                target_pod = (
+                    Pod.objects.filter(status='active', time_slot=pod.time_slot)
+                    .exclude(id=pod.id)
+                    .annotate(active_count=Count('memberships', filter=Q(memberships__status='active')))
+                    .filter(active_count__gt=0, active_count__lt=5)
+                    .first()
+                )
+                if target_pod:
+                    solitary_member.status = 'reassigned'
+                    solitary_member.left_at = django_tz.now()
+                    solitary_member.save()
+
+                    PodMembership.objects.create(
+                        user=solitary_member.user,
+                        pod=target_pod,
+                        role='member',
+                        status='active'
+                    )
+                    PodReshuffleLog.objects.create(
+                        user=solitary_member.user,
+                        old_pod=pod,
+                        new_pod=target_pod,
+                        reason="Consolidated from solitary dormant pod"
+                    )
+                    reallocated_count += 1
+
+    return {
+        "rotated_inactive_count": rotated_count,
+        "reallocated_count": reallocated_count,
+        "reference_date": reference_date,
+        "cutoff_date": cutoff_date,
+    }

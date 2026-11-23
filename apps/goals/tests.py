@@ -100,3 +100,49 @@ class GoalsVerticalSliceTests(TestCase):
         data = response.json()
         self.assertTrue(data['success'])
         self.assertEqual(data['goal']['title'], 'Call family')
+
+    def test_edit_custom_goal_service(self):
+        from .services import update_custom_goal
+        goals = get_or_create_user_goals(self.user)
+        target = goals[0]
+        updated, error = update_custom_goal(self.user, target.id, "Drink 2L water", "wellness")
+        self.assertIsNone(error)
+        self.assertEqual(updated.title, "Drink 2L water")
+        self.assertEqual(updated.category, "wellness")
+
+    def test_edit_goal_http_view_ajax(self):
+        self.client.force_login(self.user)
+        goals = get_or_create_user_goals(self.user)
+        target = goals[0]
+        response = self.client.post(
+            reverse('goals:edit', args=[target.id]),
+            {'title': 'Updated Habit Title', 'category': 'academic'},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data['success'])
+        self.assertEqual(data['goal']['title'], 'Updated Habit Title')
+        target.refresh_from_db()
+        self.assertEqual(target.title, 'Updated Habit Title')
+
+    def test_export_consistency_report_anonymous_redirects(self):
+        response = self.client.get(reverse('goals:export'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login:login'), response.url)
+
+    def test_export_consistency_report_authenticated_returns_csv(self):
+        from apps.home.models import DailyCheckIn
+        from datetime import date
+        DailyCheckIn.objects.create(user=self.user, date=date.today())
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('goals:export'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/csv')
+        self.assertIn('attachment; filename=', response['Content-Disposition'])
+
+        content = response.content.decode('utf-8')
+        self.assertIn('Date,Username,Pod Name,Daily Check-In', content)
+        self.assertIn(self.user.username, content)
+

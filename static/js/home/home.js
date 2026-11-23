@@ -13,7 +13,46 @@ document.addEventListener("DOMContentLoaded", function() {
     // Event delegation for toggling goal completion and deletion
     goalList.addEventListener("click", function(e) {
       const deleteBtn = e.target.closest(".goal-remove-btn");
+      const editBtn = e.target.closest(".goal-edit-btn");
       const row = e.target.closest(".goal-row");
+
+      // Handle Edit Goal
+      if (editBtn) {
+        e.stopPropagation();
+        const goalId = editBtn.getAttribute("data-goal-id");
+        const titleSpan = row?.querySelector(".goal-title");
+        const currentTitle = titleSpan?.textContent?.trim() || "";
+        const newTitle = prompt("Update your gentle habit:", currentTitle);
+
+        if (!newTitle || newTitle.trim() === "" || newTitle.trim() === currentTitle) {
+          return;
+        }
+
+        const csrfToken = getCsrfToken();
+        const formData = new FormData();
+        formData.append("title", newTitle.trim());
+
+        fetch(`/goals/edit/${goalId}/`, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": csrfToken,
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json",
+          },
+          body: formData,
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.goal && titleSpan) {
+            titleSpan.textContent = data.goal.title;
+            editBtn.setAttribute("data-title", data.goal.title);
+          } else if (data.error) {
+            alert(data.error);
+          }
+        })
+        .catch(err => console.error("Error editing goal:", err));
+        return;
+      }
 
       // Handle Delete Goal
       if (deleteBtn) {
@@ -129,10 +168,12 @@ document.addEventListener("DOMContentLoaded", function() {
           const newRow = document.createElement("div");
           newRow.className = "goal-row";
           newRow.setAttribute("data-goal-id", data.goal.id);
+          newRow.setAttribute("data-category", data.goal.category);
           newRow.innerHTML = `
             <span class="checkbox"></span>
             <span class="goal-title">${data.goal.title}</span>
             <span class="goal-category-dot category-${data.goal.category}" title="${data.goal.category}"></span>
+            <button type="button" class="goal-edit-btn" data-goal-id="${data.goal.id}" data-title="${data.goal.title}" title="Edit habit" aria-label="Edit habit">&#9998;</button>
             <button type="button" class="goal-remove-btn" data-goal-id="${data.goal.id}" title="Remove habit" aria-label="Remove habit">&times;</button>
           `;
 
@@ -148,6 +189,29 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       })
       .catch(err => console.error("Error adding goal:", err));
+    });
+  }
+
+  // Category Filtering for Goals
+  const categoryFilterBar = document.getElementById("category-filter-bar");
+  if (categoryFilterBar && goalList) {
+    categoryFilterBar.addEventListener("click", function(e) {
+      const btn = e.target.closest(".category-pill");
+      if (!btn) return;
+
+      categoryFilterBar.querySelectorAll(".category-pill").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+
+      const filter = btn.getAttribute("data-filter") || "all";
+      const rows = goalList.querySelectorAll(".goal-row");
+      rows.forEach(row => {
+        const cat = row.getAttribute("data-category");
+        if (filter === "all" || cat === filter) {
+          row.style.display = "flex";
+        } else {
+          row.style.display = "none";
+        }
+      });
     });
   }
 

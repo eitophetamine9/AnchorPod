@@ -77,19 +77,30 @@
           <h2>What can you hold today?</h2>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
+          <a href="{% url 'goals:export' %}" class="export-report-btn" title="Download consistency history as CSV">Export CSV &darr;</a>
           <span class="goal-progress-chip" id="goal-progress-chip">{{ goals_completed_count }}/{{ goals_total_count }} completed</span>
           <span class="date-chip">{{ today_chip }}</span>
         </div>
       </div>
 
+      <!-- Category Filter Tabs -->
+      <div class="category-filter-bar" id="category-filter-bar">
+        <button type="button" class="category-pill active" data-filter="all">All</button>
+        <button type="button" class="category-pill" data-filter="wellness">Wellness</button>
+        <button type="button" class="category-pill" data-filter="physical">Physical</button>
+        <button type="button" class="category-pill" data-filter="mindfulness">Mindfulness</button>
+        <button type="button" class="category-pill" data-filter="academic">Academic</button>
+      </div>
+
       <div class="goal-list" id="goal-list">
         {% for goal in user_goals %}
-          <div class="goal-row {% if goal.completed %}goal-done{% endif %}" data-goal-id="{{ goal.id }}">
+          <div class="goal-row {% if goal.completed %}goal-done{% endif %}" data-goal-id="{{ goal.id }}" data-category="{{ goal.category }}">
             <span class="checkbox {% if goal.completed %}checked{% endif %}">
               {% if goal.completed %}&#10003;{% endif %}
             </span>
             <span class="goal-title">{{ goal.title }}</span>
             <span class="goal-category-dot category-{{ goal.category }}" title="{{ goal.category|title }}"></span>
+            <button type="button" class="goal-edit-btn" data-goal-id="{{ goal.id }}" data-title="{{ goal.title }}" title="Edit habit" aria-label="Edit habit">&#9998;</button>
             <button type="button" class="goal-remove-btn" data-goal-id="{{ goal.id }}" title="Remove habit" aria-label="Remove habit">&times;</button>
           </div>
         {% empty %}

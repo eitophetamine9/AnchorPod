@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pod Journey & Reshuffle History | AnchorPod{% endblock %}
+
+{% block extra_css %}
+<style>
+.history-shell {
+  max-width: 1040px;
+  margin: 32px auto 80px;
+  padding: 0 24px;
+}
+
+.history-header {
+  margin-bottom: 32px;
+}
+
+.history-breadcrumb {
+  font-size: 0.85rem;
+  color: var(--muted-slate, #627264);
+  margin-bottom: 8px;
+}
+
+.history-breadcrumb a {
+  color: var(--primary-accent, #2E5A44);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.history-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.history-header h1 {
+  font-size: 2.2rem;
+  color: var(--forest-night, #1E3A2F);
+  margin: 4px 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.history-subtitle {
+  color: var(--muted-slate, #627264);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 720px;
+}
+
+.history-nav-btns {
+  display: flex;
+  gap: 12px;
+}
+
+.history-btn {
+  display: inline-block;
+  background: var(--warm-parchment, #F9F6F0);
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  color: var(--forest-night, #1E3A2F);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.history-btn:hover {
+  background: var(--forest-night, #1E3A2F);
+  color: #FFFFFF;
+}
+
+/* Metric Tiles */
+.history-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.history-metric-tile {
+  background: var(--warm-parchment, #F9F6F0);
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.history-metric-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-slate, #627264);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.history-metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--forest-night, #1E3A2F);
+  line-height: 1.1;
+}
+
+.history-metric-subtext {
+  font-size: 0.82rem;
+  color: var(--muted-slate, #627264);
+  margin-top: 6px;
+}
+
+/* Card Sections */
+.history-card {
+  background: #FFFFFF;
+  border: 1px solid var(--parchment-border, #E8E2D5);
+  border-radius: 18px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 14px rgba(30, 58, 47, 0.03);
+}
+
+.history-card-title {
+  font-size: 1.4rem;
+  color: var(--forest-night, #1E3A2F);
+  margin: 0 0 8px;
+}
+
+.history-card-desc {
+  color: var(--muted-slate, #627264);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* Timeline & Log Items */
+.log-item {
+  display: flex;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(232, 226, 213, 0.6);
+  align-items: flex-start;
+}
+
+.log-item:last-child {
+  border-bottom: none;
+}
+
+.log-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.badge-reassigned {
+  background: #E8F0EC;
+  color: #2E5A44;
+}
+
+.badge-inactive {
+  background: #FDF2E9;
+  color: #B25E29;
+}
+
+.badge-active {
+  background: #EBF4F6;
+  color: #265B68;
+}
+
+.log-content {
+  flex-grow: 1;
+}
+
+.log-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--forest-night, #1E3A2F);
+  margin: 0 0 4px;
+}
+
+.log-detail {
+  font-size: 0.88rem;
+  color: var(--muted-slate, #627264);
+  line-height: 1.5;
+  margin: 0 0 6px;
+}
+
+.log-date {
+  font-size: 0.78rem;
+  color: var(--muted-slate, #627264);
+  font-family: monospace;
+}
+
+/* Policy Callout */
+.policy-box {
+  background: var(--warm-parchment, #F9F6F0);
+  border-left: 4px solid var(--primary-accent, #2E5A44);
+  border-radius: 0 12px 12px 0;
+  padding: 20px 24px;
+  margin-top: 24px;
+}
+
+.policy-box h4 {
+  font-size: 1.05rem;
+  color: var(--forest-night, #1E3A2F);
+  margin: 0 0 8px;
+}
+
+.policy-box p {
+  font-size: 0.9rem;
+  color: var(--muted-slate, #627264);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Dark Theme Overrides */
+.dark-theme .history-card {
+  background: #18251F;
+  border-color: #273A30;
+}
+
+.dark-theme .history-header h1,
+.dark-theme .history-card-title,
+.dark-theme .log-title,
+.dark-theme .policy-box h4 {
+  color: #F0EDE6;
+}
+
+.dark-theme .history-subtitle,
+.dark-theme .history-card-desc,
+.dark-theme .log-detail,
+.dark-theme .policy-box p {
+  color: #A3B3A5;
+}
+
+.dark-theme .history-metric-tile,
+.dark-theme .policy-box {
+  background: #1B2922;
+  border-color: #2D4137;
+}
+
+.dark-theme .history-metric-value {
+  color: #F0EDE6;
+}
+
+.dark-theme .log-item {
+  border-color: #273A30;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="history-shell">
+
+  <!-- Header -->
+  <header class="history-header">
+    <div class="history-breadcrumb">
+      <a href="{% url 'home:home' %}">Dashboard</a> /
+      <a href="{% url 'pods:my_pod' %}">My Pod</a> /
+      <span>Journey History</span>
+    </div>
+
+    <div class="history-title-row">
+      <div>
+        <h1>Pod Journey & Reshuffle History</h1>
+        <p class="history-subtitle">
+          Transparent audit trail of your pod assignments, schedule reallocations,
+          and automated anti-stagnation rotations.
+        </p>
+      </div>
+
+      <div class="history-nav-btns">
+        <a href="{% url 'pods:my_pod' %}" class="history-btn">&larr; Back to My Pod</a>
+        <a href="{% url 'home:home' %}" class="history-btn">Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Metric Tiles -->
+  <section class="history-metrics-row">
+    <div class="history-metric-tile">
+      <div class="history-metric-label">Current Pod</div>
+      <div class="history-metric-value">{{ pod.name }}</div>
+      <div class="history-metric-subtext">Rhythm: {{ pod.time_slot }}</div>
+    </div>
+
+    <div class="history-metric-tile">
+      <div class="history-metric-label">Tenure in Pod</div>
+      <div class="history-metric-value">Day {{ days_in_current_pod }}</div>
+      <div class="history-metric-subtext">Formed: {{ pod.formation_date|date:"M d, Y"|default:"Active" }}</div>
+    </div>
+
+    <div class="history-metric-tile">
+      <div class="history-metric-label">Lifetime Check-Ins</div>
+      <div class="history-metric-value">{{ total_checkins }}</div>
+      <div class="history-metric-subtext">Recorded in home_dailycheckin</div>
+    </div>
+
+    <div class="history-metric-tile">
+      <div class="history-metric-label">Audit Transitions</div>
+      <div class="history-metric-value">{{ reshuffle_count }}</div>
+      <div class="history-metric-subtext">Logged in pod_reshuffle_log</div>
+    </div>
+  </section>
+
+  <!-- Transition & Reshuffle Audit Log -->
+  <section class="history-card">
+    <h2 class="history-card-title">Reshuffle & Reallocation Audit Trail</h2>
+    <p class="history-card-desc">
+      Every time you update your study window or when the system detects dormant members,
+      a permanent record is preserved in <code>pod_reshuffle_log</code>.
+    </p>
+
+    {% for log in reshuffle_logs %}
+      <div class="log-item">
+        <div>
+          <span class="log-badge badge-reassigned">Reallocated</span>
+        </div>
+        <div class="log-content">
+          <div class="log-title">
+            {{ log.old_pod.name }} &rarr; {{ log.new_pod.name|default:"Unassigned" }}
+          </div>
+          <p class="log-detail">
+            <strong>Reason:</strong> {{ log.reason }}
+          </p>
+          <span class="log-date">{{ log.transitioned_at|date:"F d, Y - h:i A" }}</span>
+        </div>
+      </div>
+    {% empty %}
+      <div style="text-align: center; padding: 36px 20px; color: var(--muted-slate, #627264);">
+        <p style="font-size: 1.05rem; margin: 0 0 6px; font-weight: 600; color: var(--forest-night, #1E3A2F);">
+          No reshuffles recorded yet
+        </p>
+        <p style="font-size: 0.9rem; margin: 0;">
+          You have remained with your founding pod circle since joining AnchorPod.
+        </p>
+      </div>
+    {% endfor %}
+
+    <!-- Anti-Stagnation Policy Explainer -->
+    <div class="policy-box">
+      <h4>Automated Anti-Stagnation Policy</h4>
+      <p>
+        AnchorPod automatically detects dormant student accounts (members with 3+ days of inactivity).
+        To prevent active students from being stranded in abandoned groups, the background reshuffle worker
+        gracefully rotates inactive slots and re-balances active members into vibrant, shared-schedule pods.
+      </p>
+    </div>
+  </section>
+
+  <!-- Membership History Table -->
+  <section class="history-card">
+    <h2 class="history-card-title">Pod Membership Record</h2>
+    <p class="history-card-desc">
+      Historical log from <code>pod_membership</code> showing all past and present pod associations.
+    </p>
+
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--parchment-border, #E8E2D5); text-align: left;">
+            <th style="padding: 10px 14px; font-size: 0.8rem; text-transform: uppercase; color: var(--muted-slate);">Pod Name</th>
+            <th style="padding: 10px 14px; font-size: 0.8rem; text-transform: uppercase; color: var(--muted-slate);">Time Slot</th>
+            <th style="padding: 10px 14px; font-size: 0.8rem; text-transform: uppercase; color: var(--muted-slate);">Role</th>
+            <th style="padding: 10px 14px; font-size: 0.8rem; text-transform: uppercase; color: var(--muted-slate);">Status</th>
+            <th style="padding: 10px 14px; font-size: 0.8rem; text-transform: uppercase; color: var(--muted-slate);">Joined Date</th>
+            <th style="padding: 10px 14px; font-size: 0.8rem; text-transform: uppercase; color: var(--muted-slate);">Departure Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in memberships %}
+            <tr style="border-bottom: 1px solid rgba(232, 226, 213, 0.5);">
+              <td style="padding: 12px 14px; font-weight: 600; color: var(--forest-night);">{{ m.pod.name }}</td>
+              <td style="padding: 12px 14px; color: var(--muted-slate);">{{ m.pod.time_slot }}</td>
+              <td style="padding: 12px 14px; text-transform: capitalize;">{{ m.role }}</td>
+              <td style="padding: 12px 14px;">
+                <span class="log-badge {% if m.status == 'active' %}badge-active{% else %}badge-inactive{% endif %}">
+                  {{ m.status }}
+                </span>
+              </td>
+              <td style="padding: 12px 14px; color: var(--muted-slate);">{{ m.joined_at|date:"M d, Y" }}</td>
+              <td style="padding: 12px 14px; color: var(--muted-slate);">{{ m.left_at|date:"M d, Y"|default:"Current" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

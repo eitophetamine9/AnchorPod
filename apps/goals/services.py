@@ -163,3 +163,26 @@ def delete_goal(user, goal_id):
     goal.is_active = False
     goal.save()
     return True, None
+
+
+def update_custom_goal(user, goal_id, title, category=None):
+    """
+    Updates the title and/or category of an active goal owned by the user.
+    """
+    goal = SelfCareGoal.objects.filter(id=goal_id, user=user, is_active=True).first()
+    if not goal:
+        return None, "Goal not found."
+
+    title = title.strip()
+    if not title:
+        return None, "Goal title cannot be empty."
+
+    if len(title) > 120:
+        return None, "Goal title cannot exceed 120 characters."
+
+    goal.title = title
+    if category and category in VALID_CATEGORIES:
+        goal.category = category
+
+    goal.save()
+    return goal, None

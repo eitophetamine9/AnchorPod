@@ -350,6 +350,88 @@ body.dark-theme .goal-progress-chip {
   border-color: rgba(99, 171, 116, 0.35);
 }
 
+.export-report-btn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary-accent, #2E5A44);
+  background: rgba(46, 90, 68, 0.08);
+  border: 1px solid rgba(46, 90, 68, 0.2);
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.export-report-btn:hover {
+  background: var(--primary-accent, #2E5A44);
+  color: #ffffff;
+}
+
+body.dark-theme .export-report-btn {
+  color: #a7e3bc;
+  background: rgba(99, 171, 116, 0.15);
+  border-color: rgba(99, 171, 116, 0.3);
+}
+
+.category-filter-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.category-pill {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--muted, #627264);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.category-pill:hover,
+.category-pill.active {
+  background: var(--primary-accent, #2E5A44);
+  color: #ffffff;
+  border-color: var(--primary-accent, #2E5A44);
+}
+
+body.dark-theme .category-pill {
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #a3b3a5;
+}
+
+body.dark-theme .category-pill:hover,
+body.dark-theme .category-pill.active {
+  background: #2E5A44;
+  color: #ffffff;
+  border-color: #2E5A44;
+}
+
+.goal-edit-btn {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.goal-row:hover .goal-edit-btn {
+  opacity: 1;
+}
+
+.goal-edit-btn:hover {
+  color: var(--primary-accent, #2E5A44);
+  background: rgba(46, 90, 68, 0.1);
+}
+
 .goal-row {
   display: flex;
   align-items: center;

@@ -246,6 +246,15 @@ document.addEventListener("DOMContentLoaded", function() {
         });
       }
     });
+
+    // Double-click habit row to quickly trigger inline editing
+    goalList.addEventListener("dblclick", function(e) {
+      const row = e.target.closest(".goal-row");
+      const editBtn = row?.querySelector(".goal-edit-btn");
+      if (editBtn && !row.querySelector(".goal-edit-container")) {
+        editBtn.click();
+      }
+    });
   }
 
   // Handle Adding New Custom Goal

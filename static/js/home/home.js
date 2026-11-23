@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
       }
 
-      // Handle Toggle Goal Completion
+      // Handle Toggle Goal Completion (Optimistic UI for Instant Feedback)
       if (row && !e.target.closest("button") && !e.target.closest("form")) {
         const goalId = row.getAttribute("data-goal-id");
         if (!goalId) return;
@@ -98,6 +98,25 @@ document.addEventListener("DOMContentLoaded", function() {
         const csrfToken = getCsrfToken();
         const box = row.querySelector(".checkbox");
 
+        // 1. Snapshot previous state for rollback on error
+        const wasDone = row.classList.contains("goal-done");
+        const willBeDone = !wasDone;
+
+        // 2. Instant visual feedback (0ms optimistic toggle)
+        row.classList.toggle("goal-done", willBeDone);
+        if (box) {
+          box.classList.toggle("checked", willBeDone);
+          box.textContent = willBeDone ? "✓" : "";
+        }
+
+        // Optimistically update progress chip
+        if (goalProgressChip) {
+          const totalRows = goalList.querySelectorAll(".goal-row").length;
+          const doneRows = goalList.querySelectorAll(".goal-row.goal-done").length;
+          goalProgressChip.textContent = `${doneRows}/${totalRows} completed`;
+        }
+
+        // 3. Persist to Supabase in the background
         fetch(`/goals/toggle/${goalId}/`, {
           method: "POST",
           headers: {
@@ -109,26 +128,39 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(res => res.json())
         .then(data => {
           if (data.success) {
-            if (data.completed) {
-              row.classList.add("goal-done");
-              if (box) {
-                box.classList.add("checked");
-                box.textContent = "✓";
-              }
-            } else {
-              row.classList.remove("goal-done");
-              if (box) {
-                box.classList.remove("checked");
-                box.textContent = "";
-              }
-            }
-
-            if (goalProgressChip) {
+            // Reconcile with authoritative server counts
+            if (goalProgressChip && typeof data.completed_count === "number" && typeof data.total_count === "number") {
               goalProgressChip.textContent = `${data.completed_count}/${data.total_count} completed`;
             }
+          } else {
+            // Revert state if server returned an error
+            row.classList.toggle("goal-done", wasDone);
+            if (box) {
+              box.classList.toggle("checked", wasDone);
+              box.textContent = wasDone ? "✓" : "";
+            }
+            if (goalProgressChip) {
+              const totalRows = goalList.querySelectorAll(".goal-row").length;
+              const doneRows = goalList.querySelectorAll(".goal-row.goal-done").length;
+              goalProgressChip.textContent = `${doneRows}/${totalRows} completed`;
+            }
+            console.error("Failed to toggle habit:", data.error);
           }
         })
-        .catch(err => console.error("Error toggling goal:", err));
+        .catch(err => {
+          // Revert state if network failure
+          row.classList.toggle("goal-done", wasDone);
+          if (box) {
+            box.classList.toggle("checked", wasDone);
+            box.textContent = wasDone ? "✓" : "";
+          }
+          if (goalProgressChip) {
+            const totalRows = goalList.querySelectorAll(".goal-row").length;
+            const doneRows = goalList.querySelectorAll(".goal-row.goal-done").length;
+            goalProgressChip.textContent = `${doneRows}/${totalRows} completed`;
+          }
+          console.error("Network error toggling habit:", err);
+        });
       }
     });
   }
@@ -286,4 +318,18 @@ document.addEventListener("DOMContentLoaded", function() {
       });
     });
   });
+
+  // 4. Instant tactile feedback on Daily Check-In submission
+  const checkinForm = document.querySelector('form[action*="check_in"]');
+  if (checkinForm) {
+    checkinForm.addEventListener("submit", function() {
+      const btn = checkinForm.querySelector(".checkin-button");
+      if (btn) {
+        btn.innerHTML = 'Checked in for today &#10003; <span>&rarr;</span>';
+        btn.style.background = "#416b5e";
+        btn.style.opacity = "0.9";
+        btn.style.pointerEvents = "none";
+      }
+    });
+  }
 });

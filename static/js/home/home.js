@@ -16,41 +16,124 @@ document.addEventListener("DOMContentLoaded", function() {
       const editBtn = e.target.closest(".goal-edit-btn");
       const row = e.target.closest(".goal-row");
 
-      // Handle Edit Goal
+      // Handle Edit Goal (Inline in-place editor)
       if (editBtn) {
         e.stopPropagation();
         const goalId = editBtn.getAttribute("data-goal-id");
-        const titleSpan = row?.querySelector(".goal-title");
-        const currentTitle = titleSpan?.textContent?.trim() || "";
-        const newTitle = prompt("Update your gentle habit:", currentTitle);
+        if (!goalId || !row) return;
 
-        if (!newTitle || newTitle.trim() === "" || newTitle.trim() === currentTitle) {
-          return;
-        }
+        // If already editing, prevent duplicates
+        if (row.querySelector(".goal-edit-container")) return;
 
-        const csrfToken = getCsrfToken();
-        const formData = new FormData();
-        formData.append("title", newTitle.trim());
+        const titleSpan = row.querySelector(".goal-title");
+        if (!titleSpan) return;
 
-        fetch(`/goals/edit/${goalId}/`, {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": csrfToken,
-            "X-Requested-With": "XMLHttpRequest",
-            "Accept": "application/json",
-          },
-          body: formData,
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.goal && titleSpan) {
-            titleSpan.textContent = data.goal.title;
-            editBtn.setAttribute("data-title", data.goal.title);
-          } else if (data.error) {
-            alert(data.error);
+        const currentTitle = titleSpan.textContent.trim();
+
+        // Temporarily hide display elements
+        titleSpan.style.display = "none";
+        editBtn.style.display = "none";
+        const removeBtn = row.querySelector(".goal-remove-btn");
+        if (removeBtn) removeBtn.style.display = "none";
+
+        // Create inline editor container
+        const editContainer = document.createElement("div");
+        editContainer.className = "goal-edit-container";
+        editContainer.innerHTML = `
+          <input type="text" class="goal-edit-input" maxlength="120" value="${currentTitle.replace(/"/g, '&quot;')}" />
+          <button type="button" class="goal-edit-save-btn" title="Save">&#10003;</button>
+          <button type="button" class="goal-edit-cancel-btn" title="Cancel">&times;</button>
+        `;
+
+        // Prevent clicking inside edit container from toggling completion
+        editContainer.addEventListener("click", function(ev) {
+          ev.stopPropagation();
+        });
+
+        titleSpan.parentNode.insertBefore(editContainer, titleSpan.nextSibling);
+
+        const editInput = editContainer.querySelector(".goal-edit-input");
+        const saveBtn = editContainer.querySelector(".goal-edit-save-btn");
+        const cancelBtn = editContainer.querySelector(".goal-edit-cancel-btn");
+
+        editInput.focus();
+        editInput.select();
+
+        const closeEditor = () => {
+          editContainer.remove();
+          titleSpan.style.display = "";
+          editBtn.style.display = "";
+          if (removeBtn) removeBtn.style.display = "";
+        };
+
+        const saveEdit = () => {
+          const newTitle = editInput.value.trim();
+          if (!newTitle) {
+            editInput.focus();
+            return;
           }
-        })
-        .catch(err => console.error("Error editing goal:", err));
+
+          if (newTitle === currentTitle) {
+            closeEditor();
+            return;
+          }
+
+          // Optimistically update title span immediately (0ms visual response)
+          titleSpan.textContent = newTitle;
+          editBtn.setAttribute("data-title", newTitle);
+          closeEditor();
+
+          const csrfToken = getCsrfToken();
+          const formData = new FormData();
+          formData.append("title", newTitle);
+
+          fetch(`/goals/edit/${goalId}/`, {
+            method: "POST",
+            headers: {
+              "X-CSRFToken": csrfToken,
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+            },
+            body: formData,
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (!data.success) {
+              // Revert if error
+              titleSpan.textContent = currentTitle;
+              editBtn.setAttribute("data-title", currentTitle);
+              alert(data.error || "Failed to update habit.");
+            }
+          })
+          .catch(err => {
+            titleSpan.textContent = currentTitle;
+            editBtn.setAttribute("data-title", currentTitle);
+            console.error("Error editing goal:", err);
+          });
+        };
+
+        saveBtn.addEventListener("click", function(ev) {
+          ev.stopPropagation();
+          saveEdit();
+        });
+
+        cancelBtn.addEventListener("click", function(ev) {
+          ev.stopPropagation();
+          closeEditor();
+        });
+
+        editInput.addEventListener("keydown", function(ev) {
+          if (ev.key === "Enter") {
+            ev.preventDefault();
+            ev.stopPropagation();
+            saveEdit();
+          } else if (ev.key === "Escape") {
+            ev.preventDefault();
+            ev.stopPropagation();
+            closeEditor();
+          }
+        });
+
         return;
       }
 

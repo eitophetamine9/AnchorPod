@@ -89,37 +89,38 @@ def get_user_goals_with_today_status(user, target_date=None):
 def toggle_goal_completion(user, goal_id, target_date=None):
     """
     Toggles the completed state for a user's goal on target_date.
+    Optimized to minimize database roundtrips to remote PostgreSQL.
     Returns (completion_obj, is_completed, completed_count, total_count, error).
     """
     if target_date is None:
         target_date = date.today()
 
-    goal = SelfCareGoal.objects.filter(id=goal_id, user=user, is_active=True).first()
-    if not goal:
+    active_goal_ids = list(SelfCareGoal.objects.filter(user=user, is_active=True).values_list('id', flat=True))
+    if goal_id not in active_goal_ids:
         return None, False, 0, 0, "Goal not found."
 
-    with transaction.atomic():
-        completion, created = DailyGoalCompletion.objects.get_or_create(
-            goal=goal,
-            user=user,
-            date=target_date,
-            defaults={'completed': True}
-        )
+    total_count = len(active_goal_ids)
 
-        if not created:
-            completion.completed = not completion.completed
-            completion.save()
-        is_completed = completion.completed
-
-        # Calculate updated counts
-        active_goal_ids = set(SelfCareGoal.objects.filter(user=user, is_active=True).values_list('id', flat=True))
-        completed_count = DailyGoalCompletion.objects.filter(
+    completion = DailyGoalCompletion.objects.filter(goal_id=goal_id, user=user, date=target_date).first()
+    if completion:
+        is_completed = not completion.completed
+        completion.completed = is_completed
+        completion.save(update_fields=['completed'])
+    else:
+        completion = DailyGoalCompletion.objects.create(
+            goal_id=goal_id,
             user=user,
-            goal_id__in=active_goal_ids,
             date=target_date,
             completed=True
-        ).count()
-        total_count = len(active_goal_ids)
+        )
+        is_completed = True
+
+    completed_count = DailyGoalCompletion.objects.filter(
+        user=user,
+        goal_id__in=active_goal_ids,
+        date=target_date,
+        completed=True
+    ).count()
 
     return completion, is_completed, completed_count, total_count, None
 

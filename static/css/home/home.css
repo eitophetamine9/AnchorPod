@@ -415,12 +415,12 @@ body.dark-theme .category-pill.active {
   border: none;
   font-size: 13px;
   line-height: 1;
-  color: var(--muted);
+  color: var(--muted-slate, #627264);
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 3px 6px;
   border-radius: 4px;
-  opacity: 0;
-  transition: opacity 0.15s ease, color 0.15s ease;
+  opacity: 0.65;
+  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 
 .goal-row:hover .goal-edit-btn {
@@ -430,6 +430,66 @@ body.dark-theme .category-pill.active {
 .goal-edit-btn:hover {
   color: var(--primary-accent, #2E5A44);
   background: rgba(46, 90, 68, 0.1);
+  opacity: 1;
+}
+
+.goal-edit-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.goal-edit-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--primary-accent, #2E5A44);
+  border-radius: 4px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  color: var(--forest-night, #1E3A2F);
+  background: #FFFFFF;
+  outline: none;
+}
+
+body.dark-theme .goal-edit-input {
+  background: #141b1b;
+  color: #e0e6e6;
+  border-color: var(--accent);
+}
+
+.goal-edit-save-btn,
+.goal-edit-cancel-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.goal-edit-save-btn {
+  color: #2E5A44;
+  background: rgba(46, 90, 68, 0.12);
+  border-color: rgba(46, 90, 68, 0.3);
+}
+
+.goal-edit-save-btn:hover {
+  background: #2E5A44;
+  color: #FFFFFF;
+}
+
+.goal-edit-cancel-btn {
+  color: #8C5B55;
+  background: rgba(140, 91, 85, 0.1);
+  border-color: rgba(140, 91, 85, 0.2);
+}
+
+.goal-edit-cancel-btn:hover {
+  background: #8C5B55;
+  color: #FFFFFF;
 }
 
 .goal-row {

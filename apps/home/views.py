@@ -91,9 +91,6 @@ def home_view(request):
     # Keep self at the top of the list
     pod_members.sort(key=lambda m: (not m['is_self'], m['nickname'].lower()))
 
-    # Update summary and streak using in-memory counts (no redundant DB writes on GET)
-    update_pod_daily_status(pod, today, known_members=member_users, known_checked_in_count=checked_in_count)
-
     # Day Counter: Days with Pod
     formation_date = pod.formation_date or today
     day_number = max((today - formation_date).days + 1, 1)
